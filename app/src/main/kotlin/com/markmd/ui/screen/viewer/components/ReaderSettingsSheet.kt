@@ -91,7 +91,7 @@ fun ReaderSettingsSheetContent(
                     FilterChip(
                         selected = t == theme,
                         onClick = { onThemeChange(t) },
-                        label = { Text(t.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                        label = { Text(t.name.replace('_', ' ').lowercase().split(" ").joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } }) },
                     )
                 }
             }
