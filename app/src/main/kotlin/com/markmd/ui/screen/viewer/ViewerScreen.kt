@@ -17,7 +17,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,10 +37,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -69,6 +72,7 @@ fun ViewerScreen(
     val readerSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val lazyListState = rememberLazyListState()
     val sections = rememberMarkdownSections(uiState.document?.content ?: "")
+    val currentSections by rememberUpdatedState(sections)
 
     var showMenu by remember { mutableStateOf(false) }
     var showTocSheet by remember { mutableStateOf(false) }
@@ -82,7 +86,7 @@ fun ViewerScreen(
         viewModel.events.collectLatest { event ->
             when (event) {
                 is ViewerEvent.ScrollToAnchor -> {
-                    val index = sections.indexOfFirst { it.anchor == event.anchor }
+                    val index = currentSections.indexOfFirst { it.anchor == event.anchor }
                     if (index >= 0) {
                         lazyListState.animateScrollToItem(index)
                     }
@@ -166,16 +170,15 @@ fun ViewerScreen(
         },
         floatingActionButton = {
             if (uiState.toc.isNotEmpty()) {
-                ExtendedFloatingActionButton(
+                FloatingActionButton(
                     onClick = { showTocSheet = true },
-                    icon = {
-                        Icon(
-                            Icons.AutoMirrored.Filled.List,
-                            contentDescription = stringResource(R.string.viewer_toc)
-                        )
-                    },
-                    text = { Text(stringResource(R.string.viewer_toc)) },
-                )
+                    elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.List,
+                        contentDescription = stringResource(R.string.viewer_toc)
+                    )
+                }
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -201,10 +204,12 @@ fun ViewerScreen(
                 }
                 uiState.document != null -> {
                     MarkdownViewer(
-                        sections = sections,
-                        fontSize = readerSettings.fontSize,
+                        sections      = sections,
+                        fontSize      = readerSettings.fontSize,
+                        theme         = readerSettings.theme,
+                        onAnchorClick = { anchor -> viewModel.onTocClick(anchor) },
                         lazyListState = lazyListState,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier      = Modifier.fillMaxSize(),
                     )
                 }
             }
