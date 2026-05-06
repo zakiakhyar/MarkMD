@@ -31,11 +31,11 @@ class SettingsDataStore @Inject constructor(
         private val KEEP_SCREEN_ON_KEY = booleanPreferencesKey("keep_screen_on")
         private val SHOW_LINE_NUMBERS_KEY = booleanPreferencesKey("show_line_numbers")
 
-        private const val DEFAULT_FONT_SIZE = 16
+        private const val DEFAULT_FONT_SIZE = 14
     }
 
     val theme: Flow<AppTheme> = dataStore.data.map { prefs ->
-        prefs[THEME_KEY]?.let { AppTheme.valueOf(it) } ?: AppTheme.SYSTEM
+        prefs[THEME_KEY]?.let { runCatching { AppTheme.valueOf(it) }.getOrNull() } ?: AppTheme.SYSTEM
     }
 
     val fontSize: Flow<Int> = dataStore.data.map { prefs ->
