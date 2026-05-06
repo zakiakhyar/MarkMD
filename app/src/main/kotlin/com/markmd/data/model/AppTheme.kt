@@ -5,5 +5,6 @@ enum class AppTheme {
     LIGHT,
     DARK,
     SEPIA,
-    AMOLED
+    AMOLED,
+    DARK_BLUE,
 }
