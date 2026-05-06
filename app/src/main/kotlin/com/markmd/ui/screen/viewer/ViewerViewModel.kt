@@ -149,7 +149,7 @@ data class ViewerUiState(
 
 data class ReaderSettings(
     val theme: AppTheme = AppTheme.SYSTEM,
-    val fontSize: Int = 16,
+    val fontSize: Int = 14,
 )
 
 sealed class ViewerEvent {
