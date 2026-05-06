@@ -38,6 +38,7 @@
     <string name="theme_dark">Dark</string>
     <string name="theme_sepia">Sepia</string>
     <string name="theme_amoled">AMOLED</string>
+    <string name="theme_dark_blue">Dark Blue</string>
 
     <!-- Font Families -->
     <string name="font_sans">Sans-serif</string>
