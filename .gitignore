@@ -1,59 +1,59 @@
-# Gradle
+# Android/Gradle
 .gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+/build/
+/app/build/
+**/build/
 
-# Local configuration file (sdk path, etc)
+# Gradle Wrapper
+!gradle/wrapper/gradle-wrapper.properties
+
+# Local configuration
 local.properties
 
-# Android Studio
+# IntelliJ
 .idea/
 *.iml
-.navigation/
+
+# Android Studio
 captures/
-.externalNativeBuild/
-.cxx/
+
+# Generated files
+**/generated/
+**/kspCaches/
+**/intermediates/
+**/outputs/
+**/tmp/
+
+# Built application files
 *.apk
 *.ap_
-*.aab
 
-# OS-specific files
-.DS_Store
-Thumbs.db
-
-# Log files
-*.log
-
-# Kotlin
+# Kotlin/Java
 *.class
-*.kotlin_module
+*.dex
 
-# Android captures
-/captures
+# Logs
+*.log
+build.log
 
-# IntelliJ
-out/
-
-# Keystore files
+# Keystore
 *.jks
 *.keystore
 
-# External native build folder generated in Android Studio 2.2 and later
-.externalNativeBuild
+# OS files
+.DS_Store
+Thumbs.db
 
-# Google Services (e.g. APIs or Firebase)
-google-services.json
+# Misc
+out/
+.gradle
+.gradle/**
 
-# Version control
-vcs.xml
+# Ignore APKs and AABs
+*.aab
 
-# lint
-lint/intermediates/
-lint/generated/
-lint/outputs/
-lint/tmp/
+# Ignore coverage
+coverage/
 
-# Android Profiling
-*.hprof
+# Keep this repo's important files tracked
+!/.gitignore
