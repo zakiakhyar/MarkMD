@@ -1,5 +1,6 @@
 package com.markmd.di
 
+import android.content.ContentResolver
 import android.content.Context
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -14,6 +15,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideContentResolver(@ApplicationContext context: Context): ContentResolver {
+        return context.contentResolver
+    }
 
     @Provides
     @Singleton
