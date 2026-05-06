@@ -97,7 +97,7 @@ fun MarkMDTheme(
 ) {
     val isSystemDark = isSystemInDarkTheme()
     val isDark = when (theme) {
-        AppTheme.DARK, AppTheme.AMOLED -> true
+        AppTheme.DARK, AppTheme.AMOLED, AppTheme.DARK_BLUE -> true
         AppTheme.LIGHT, AppTheme.SEPIA -> false
         AppTheme.SYSTEM -> isSystemDark
     }
@@ -107,6 +107,7 @@ fun MarkMDTheme(
         AppTheme.DARK -> DarkColors
         AppTheme.SEPIA -> SepiaColors
         AppTheme.AMOLED -> AmoledColors
+        AppTheme.DARK_BLUE -> DarkColors
         AppTheme.SYSTEM -> if (isSystemDark) DarkColors else LightColors
     }
 
