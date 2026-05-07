@@ -118,7 +118,7 @@ private val AmoledColors = darkColorScheme(
 @Composable
 fun MarkMDTheme(
     theme: AppTheme = AppTheme.SYSTEM,
-    fontFamily: FontFamily = FontFamily.SANS_SERIF,
+    fontFamily: FontFamily = FontFamily.SYSTEM_DEFAULT,
     content: @Composable () -> Unit
 ) {
     val isSystemDark = isSystemInDarkTheme()
