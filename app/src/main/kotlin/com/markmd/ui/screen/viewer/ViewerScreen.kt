@@ -115,9 +115,14 @@ fun ViewerScreen(
                 is ViewerEvent.NavigateToEditor -> onNavigateToEditor()
                 is ViewerEvent.NavigateToSettings -> onNavigateToSettings()
                 is ViewerEvent.ShareDocument -> {
+                    val docTitle = uiState.document?.title?.let {
+                        if (it.endsWith(".md")) it else "$it.md"
+                    } ?: "document.md"
                     val shareIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/markdown"
                         putExtra(Intent.EXTRA_STREAM, event.uri)
+                        putExtra(Intent.EXTRA_SUBJECT, docTitle)
+                        clipData = android.content.ClipData.newRawUri(docTitle, event.uri)
                         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     }
                     context.startActivity(Intent.createChooser(shareIntent, "Share document"))
