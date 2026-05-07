@@ -69,7 +69,9 @@ class DocumentRepository @Inject constructor(
     }
 
     suspend fun saveDocument(document: Document) {
-        documentDao.insertDocument(document.toEntity())
+        val existing = documentDao.getDocument(document.uri.toString())
+        val entity = document.toEntity().copy(isPinned = existing?.isPinned ?: false)
+        documentDao.insertDocument(entity)
     }
 
     suspend fun updateScrollPosition(uri: Uri, position: Int) {
@@ -80,13 +82,18 @@ class DocumentRepository @Inject constructor(
         documentDao.deleteDocument(uri.toString())
     }
 
+    suspend fun togglePin(uri: Uri) {
+        documentDao.togglePin(uri.toString())
+    }
+
     private fun DocumentEntity.toDomainModel(): Document {
         return Document(
             uri = Uri.parse(uri),
             title = title,
             content = cachedContent ?: "",
             lastModified = lastOpened,
-            scrollPosition = scrollPosition
+            scrollPosition = scrollPosition,
+            isPinned = isPinned,
         )
     }
 
@@ -96,7 +103,8 @@ class DocumentRepository @Inject constructor(
             title = title,
             lastOpened = lastModified,
             scrollPosition = scrollPosition,
-            cachedContent = content
+            cachedContent = content,
+            isPinned = isPinned,
         )
     }
 }
