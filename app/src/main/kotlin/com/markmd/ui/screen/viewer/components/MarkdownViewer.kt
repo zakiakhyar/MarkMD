@@ -22,6 +22,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +33,9 @@ import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -60,12 +63,32 @@ import com.mikepenz.markdown.m3.markdownTypography
 import com.mikepenz.markdown.model.DefaultMarkdownColors
 import com.mikepenz.markdown.model.markdownDimens
 import com.mikepenz.markdown.model.markdownPadding
+import org.intellij.markdown.IElementType
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.ast.findChildOfType
 import org.intellij.markdown.flavours.gfm.GFMElementTypes.HEADER
 import org.intellij.markdown.flavours.gfm.GFMElementTypes.ROW
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes.CELL
 import org.intellij.markdown.flavours.gfm.GFMTokenTypes.TABLE_SEPARATOR
+
+val LocalSearchQuery = compositionLocalOf { "" }
+
+fun AnnotatedString.withHighlight(query: String, highlightColor: Color): AnnotatedString {
+    if (query.isBlank()) return this
+    return buildAnnotatedString {
+        append(this@withHighlight)
+        val lower = this@withHighlight.text.lowercase()
+        val lowerQ = query.lowercase()
+        var idx = 0
+        while (idx <= lower.length - lowerQ.length) {
+            val found = lower.indexOf(lowerQ, idx)
+            if (found < 0) break
+            addStyle(SpanStyle(background = highlightColor), found, found + lowerQ.length)
+            idx = found + 1
+        }
+    }
+}
 
 /**
  * Produces the list of sections from markdown content. Exposed so the caller
@@ -83,6 +106,7 @@ fun MarkdownViewer(
     theme: AppTheme = AppTheme.SYSTEM,
     onAnchorClick: (String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
+    searchQuery: String = "",
     modifier: Modifier = Modifier,
 ) {
     val gh = rememberMarkdownTokens(theme)
@@ -192,71 +216,86 @@ fun MarkdownViewer(
     //              horizontalRule uses gh divider color; table full-wrap
     // ------------------------------------------------------------------
     val borderColor = gh.divider
+    val highlightColor = Color(0xFFFFD700).copy(alpha = 0.55f)
 
     val components = markdownComponents(
+        paragraph = { model ->
+            val query = LocalSearchQuery.current
+            val annotatorSettings = annotatorSettings()
+            val styledText = buildAnnotatedString {
+                pushStyle(model.typography.paragraph.toSpanStyle())
+                buildMarkdownAnnotatedString(
+                    content = model.content,
+                    node = model.node,
+                    annotatorSettings = annotatorSettings,
+                )
+                pop()
+            }.withHighlight(query, highlightColor)
+            MarkdownText(styledText, style = model.typography.paragraph)
+        },
+        text = { model ->
+            val query = LocalSearchQuery.current
+            val raw = model.content.substring(model.node.startOffset, model.node.endOffset)
+            val highlighted = buildAnnotatedString {
+                append(raw)
+            }.withHighlight(query, highlightColor)
+            MarkdownBasicText(highlighted, style = model.typography.paragraph)
+        },
         // h1 — bottom border; top padding only if not first element (handled by section padding)
         heading1 = { model ->
+            val query = LocalSearchQuery.current
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 8.dp, bottom = 4.dp)
                     .semantics { heading() },
             ) {
-                MarkdownHeader(
-                    content = model.content,
-                    node    = model.node,
-                    style   = model.typography.h1,
+                MarkdownText(
+                    content = buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h1, highlightColor, query),
+                    style = model.typography.h1,
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .height(1.dp)
-                        .background(borderColor),
-                )
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp).height(1.dp).background(borderColor))
             }
         },
         // h2 — bottom border
         heading2 = { model ->
+            val query = LocalSearchQuery.current
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp, bottom = 4.dp)
                     .semantics { heading() },
             ) {
-                MarkdownHeader(
-                    content = model.content,
-                    node    = model.node,
-                    style   = model.typography.h2,
+                MarkdownText(
+                    content = buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h2, highlightColor, query),
+                    style = model.typography.h2,
                 )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 6.dp)
-                        .height(1.dp)
-                        .background(borderColor),
-                )
+                Box(modifier = Modifier.fillMaxWidth().padding(top = 6.dp).height(1.dp).background(borderColor))
             }
         },
         // h3–h6 — wrapped in Box so we can control vertical padding
         heading3 = { model ->
+            val query = LocalSearchQuery.current
             Box(modifier = Modifier.padding(top = 14.dp, bottom = 2.dp)) {
-                MarkdownHeader(content = model.content, node = model.node, style = model.typography.h3)
+                MarkdownText(buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h3, highlightColor, query), style = model.typography.h3)
             }
         },
         heading4 = { model ->
+            val query = LocalSearchQuery.current
             Box(modifier = Modifier.padding(top = 12.dp, bottom = 2.dp)) {
-                MarkdownHeader(content = model.content, node = model.node, style = model.typography.h4)
+                MarkdownText(buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h4, highlightColor, query), style = model.typography.h4)
             }
         },
         heading5 = { model ->
+            val query = LocalSearchQuery.current
             Box(modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)) {
-                MarkdownHeader(content = model.content, node = model.node, style = model.typography.h5)
+                MarkdownText(buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h5, highlightColor, query), style = model.typography.h5)
             }
         },
         heading6 = { model ->
+            val query = LocalSearchQuery.current
             Box(modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)) {
-                MarkdownHeader(content = model.content, node = model.node, style = model.typography.h6)
+                MarkdownText(buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h6, highlightColor, query), style = model.typography.h6)
             }
         },
         // setext headings — GFM misparsing guard:
@@ -297,25 +336,18 @@ fun MarkdownViewer(
                         .background(gh.divider),
                 )
             } else {
+                val query = LocalSearchQuery.current
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp, bottom = 4.dp)
                         .semantics { heading() },
                 ) {
-                    MarkdownHeader(
-                        content          = model.content,
-                        node             = model.node,
-                        style            = model.typography.h1,
-                        contentChildType = MarkdownTokenTypes.SETEXT_CONTENT,
+                    MarkdownText(
+                        content = buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h1, highlightColor, query, MarkdownTokenTypes.SETEXT_CONTENT),
+                        style = model.typography.h1,
                     )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 8.dp)
-                            .height(1.dp)
-                            .background(borderColor),
-                    )
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 8.dp).height(1.dp).background(borderColor))
                 }
             }
         },
@@ -352,17 +384,16 @@ fun MarkdownViewer(
                         .background(gh.divider),
                 )
             } else {
+                val query2 = LocalSearchQuery.current
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp, bottom = 4.dp)
                         .semantics { heading() },
                 ) {
-                    MarkdownHeader(
-                        content          = model.content,
-                        node             = model.node,
-                        style            = model.typography.h2,
-                        contentChildType = MarkdownTokenTypes.SETEXT_CONTENT,
+                    MarkdownText(
+                        content = buildMarkdownHeadingAnnotated(model.content, model.node, model.typography.h2, highlightColor, query2, MarkdownTokenTypes.SETEXT_CONTENT),
+                        style = model.typography.h2,
                     )
                     Box(
                         modifier = Modifier
@@ -407,18 +438,43 @@ fun MarkdownViewer(
                     .background(gh.divider),
             )
         },
+        codeFence = { model ->
+            val query = LocalSearchQuery.current
+            if (query.isBlank()) {
+                com.mikepenz.markdown.compose.elements.MarkdownCodeFence(model.content, model.node)
+            } else {
+                val raw = model.content.substring(model.node.startOffset, model.node.endOffset)
+                val highlighted = buildAnnotatedString { append(raw) }.withHighlight(query, highlightColor)
+                MarkdownBasicText(highlighted, style = model.typography.code)
+            }
+        },
+        codeBlock = { model ->
+            val query = LocalSearchQuery.current
+            if (query.isBlank()) {
+                com.mikepenz.markdown.compose.elements.MarkdownCodeBlock(model.content, model.node)
+            } else {
+                val raw = model.content.substring(model.node.startOffset, model.node.endOffset)
+                val highlighted = buildAnnotatedString { append(raw) }.withHighlight(query, highlightColor)
+                MarkdownBasicText(highlighted, style = model.typography.code)
+            }
+        },
         // table — fully custom: always horizontal-scrollable, header centered+bold, rows 1-line
         table = { model ->
             GhTable(
-                content = model.content,
-                node    = model.node,
-                style   = model.typography.text,
+                content      = model.content,
+                node         = model.node,
+                style        = model.typography.text,
                 dividerColor = gh.divider,
+                searchQuery  = LocalSearchQuery.current,
+                highlightColor = highlightColor,
             )
         },
     )
 
-    CompositionLocalProvider(LocalUriHandler provides anchorUriHandler) {
+    CompositionLocalProvider(
+        LocalUriHandler provides anchorUriHandler,
+        LocalSearchQuery provides searchQuery,
+    ) {
     SelectionContainer(
         modifier = modifier
             .fillMaxSize()
@@ -449,6 +505,8 @@ fun MarkdownViewer(
 @Composable
 private fun GhTable(
     content: String,
+    searchQuery: String = "",
+    highlightColor: Color = Color(0xFFFFD700).copy(alpha = 0.55f),
     node: ASTNode,
     style: TextStyle,
     dividerColor: Color,
@@ -470,12 +528,12 @@ private fun GhTable(
     // Build annotated strings for every cell
     val headerCells: List<AnnotatedString> = headerNode
         ?.children?.filter { it.type == CELL }
-        ?.map { content.buildMarkdownAnnotatedString(it, headerStyle, annotator) }
+        ?.map { content.buildMarkdownAnnotatedString(it, headerStyle, annotator).withHighlight(searchQuery, highlightColor) }
         ?: emptyList()
 
     val dataRowCells: List<List<AnnotatedString>> = dataRows.map { row ->
         row.children.filter { it.type == CELL }
-            .map { content.buildMarkdownAnnotatedString(it, style, annotator) }
+            .map { content.buildMarkdownAnnotatedString(it, style, annotator).withHighlight(searchQuery, highlightColor) }
     }
 
     Box(
@@ -686,4 +744,22 @@ private fun GhTable(
             }
         }
     }
+}
+
+@Composable
+private fun buildMarkdownHeadingAnnotated(
+    content: String,
+    node: ASTNode,
+    style: TextStyle,
+    highlightColor: Color,
+    query: String,
+    contentChildType: IElementType = MarkdownTokenTypes.ATX_CONTENT,
+): AnnotatedString {
+    val settings = annotatorSettings()
+    val child = node.findChildOfType(contentChildType) ?: node
+    return buildAnnotatedString {
+        pushStyle(style.toSpanStyle())
+        buildMarkdownAnnotatedString(content = content, node = child, annotatorSettings = settings)
+        pop()
+    }.withHighlight(query, highlightColor)
 }
