@@ -60,6 +60,17 @@
     <string name="action_no">No</string>
     <string name="action_confirm">Confirm</string>
 
+    <!-- Import / Clipboard -->
+    <string name="home_import_url">Import from URL</string>
+    <string name="home_url_hint">https://example.com/document.md</string>
+    <string name="home_import">Import</string>
+    <string name="home_paste_clipboard">Paste from Clipboard</string>
+    <string name="home_clipboard_content">Markdown content</string>
+    <string name="home_file_name_hint">File name (optional)</string>
+    <string name="home_save_open">Save &amp; Open</string>
+    <string name="home_save_to_local">Save to local storage</string>
+    <string name="msg_saved_local">Saved to local storage</string>
+
     <!-- Search -->
     <string name="search_hint">Search in document…</string>
 
