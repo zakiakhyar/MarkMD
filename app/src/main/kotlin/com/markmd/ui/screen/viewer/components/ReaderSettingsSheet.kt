@@ -20,14 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.markmd.data.model.AppTheme
+import com.markmd.data.model.FontFamily
+import com.markmd.data.model.ReadingTheme
 
 @Composable
 fun ReaderSettingsSheetContent(
     fontSize: Int,
-    theme: AppTheme,
+    readingTheme: ReadingTheme,
+    fontFamily: FontFamily = FontFamily.SYSTEM_DEFAULT,
     onFontSizeChange: (Int) -> Unit,
-    onThemeChange: (AppTheme) -> Unit,
+    onReadingThemeChange: (ReadingTheme) -> Unit,
+    onFontFamilyChange: (FontFamily) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -75,10 +78,10 @@ fun ReaderSettingsSheetContent(
             }
         }
 
-        // Theme
+        // Reading Theme
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
-                text = "Theme",
+                text = "Reading Theme",
                 style = MaterialTheme.typography.bodyMedium,
             )
             Row(
@@ -87,11 +90,51 @@ fun ReaderSettingsSheetContent(
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
             ) {
-                AppTheme.entries.forEach { t ->
+                val themeLabels = mapOf(
+                    ReadingTheme.SYSTEM     to "Auto",
+                    ReadingTheme.LIGHT      to "Light",
+                    ReadingTheme.DARK       to "Dark",
+                    ReadingTheme.SEPIA      to "Sepia",
+                    ReadingTheme.AMOLED     to "AMOLED",
+                    ReadingTheme.DARK_BLUE  to "Blue",
+                    ReadingTheme.DARK_GREEN to "Green",
+                    ReadingTheme.SOLARIZED  to "Solar",
+                )
+                ReadingTheme.entries.forEach { t ->
                     FilterChip(
-                        selected = t == theme,
-                        onClick = { onThemeChange(t) },
-                        label = { Text(t.name.replace('_', ' ').lowercase().split(" ").joinToString(" ") { w -> w.replaceFirstChar { it.uppercase() } }) },
+                        selected = t == readingTheme,
+                        onClick = { onReadingThemeChange(t) },
+                        label = { Text(themeLabels[t] ?: t.name) },
+                    )
+                }
+            }
+        }
+
+        // Font family
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                text = "Font",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+            ) {
+                val labels = mapOf(
+                    FontFamily.SYSTEM_DEFAULT  to "Default",
+                    FontFamily.SERIF           to "Serif",
+                    FontFamily.GEORGIA         to "Georgia",
+                    FontFamily.LITERATA        to "Literata",
+                    FontFamily.OPEN_DYSLEXIC   to "Dyslexic",
+                    FontFamily.SOURCE_CODE_PRO to "Code",
+                )
+                FontFamily.entries.forEach { ff ->
+                    FilterChip(
+                        selected = ff == fontFamily,
+                        onClick = { onFontFamilyChange(ff) },
+                        label = { Text(labels[ff] ?: ff.name) },
                     )
                 }
             }
