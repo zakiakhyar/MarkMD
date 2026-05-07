@@ -1,7 +1,10 @@
 package com.markmd.data.model
 
 enum class FontFamily {
-    SANS_SERIF,
+    SYSTEM_DEFAULT,
     SERIF,
-    MONOSPACE
+    GEORGIA,
+    LITERATA,
+    OPEN_DYSLEXIC,
+    SOURCE_CODE_PRO,
 }
