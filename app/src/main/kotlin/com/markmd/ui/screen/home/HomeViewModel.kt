@@ -1,9 +1,12 @@
 package com.markmd.ui.screen.home
 
+import android.content.ContentResolver
+import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.markmd.data.model.Document
+import com.markmd.data.repository.DocumentRepository
 import com.markmd.domain.usecase.GetRecentDocumentsUseCase
 import com.markmd.domain.usecase.ReadFileUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +24,9 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getRecentDocuments: GetRecentDocumentsUseCase,
-    private val readFile: ReadFileUseCase
+    private val readFile: ReadFileUseCase,
+    private val repository: DocumentRepository,
+    private val contentResolver: ContentResolver,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -37,7 +42,7 @@ class HomeViewModel @Inject constructor(
     private fun loadRecentDocuments() {
         getRecentDocuments()
             .onEach { documents ->
-                _uiState.value = _uiState.value.copy(recentDocuments = documents)
+                _uiState.value = _uiState.value.copy(recentDocuments = documents, isLoading = false)
             }
             .launchIn(viewModelScope)
     }
@@ -45,9 +50,11 @@ class HomeViewModel @Inject constructor(
     fun onFileSelected(uri: Uri) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
+            takePersistablePermission(uri)
 
             readFile(uri)
                 .onSuccess { document ->
+                    repository.saveDocument(document)
                     _uiState.value = _uiState.value.copy(isLoading = false)
                     _events.emit(HomeEvent.NavigateToViewer(document.uri))
                 }
@@ -58,10 +65,43 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun onRecentDocumentClick(uri: Uri) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            takePersistablePermission(uri)
+
+            readFile(uri)
+                .onSuccess { document ->
+                    repository.saveDocument(document)
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _events.emit(HomeEvent.NavigateToViewer(document.uri))
+                }
+                .onFailure { error ->
+                    _uiState.value = _uiState.value.copy(isLoading = false)
+                    _events.emit(HomeEvent.ShowError(error.message ?: "Error opening file"))
+                }
+        }
+    }
+
+    fun onDeleteDocument(uri: Uri) {
+        viewModelScope.launch {
+            repository.deleteDocument(uri)
+        }
+    }
+
     fun onSettingsClick() {
         viewModelScope.launch {
             _events.emit(HomeEvent.NavigateToSettings)
         }
+    }
+
+    private fun takePersistablePermission(uri: Uri) {
+        try {
+            contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+        } catch (_: SecurityException) {}
     }
 }
 
