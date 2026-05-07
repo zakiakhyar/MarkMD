@@ -8,6 +8,9 @@ import com.markmd.data.model.Document
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
@@ -22,6 +25,13 @@ class DocumentRepository @Inject constructor(
 ) {
     private val documentDao = database.documentDao()
 
+    private val _fileSaved = MutableSharedFlow<Uri>(extraBufferCapacity = 1)
+    val fileSaved: SharedFlow<Uri> = _fileSaved.asSharedFlow()
+
+    suspend fun notifyFileSaved(uri: Uri) {
+        _fileSaved.emit(uri)
+    }
+
     fun getRecentDocuments(): Flow<List<Document>> {
         return documentDao.getRecentDocuments().map { entities ->
             entities.map { it.toDomainModel() }
@@ -35,8 +45,22 @@ class DocumentRepository @Inject constructor(
     suspend fun readDocumentContent(uri: Uri): Result<String> = withContext(Dispatchers.IO) {
         try {
             val content = context.contentResolver.openInputStream(uri)?.use { stream ->
-                BufferedReader(InputStreamReader(stream)).readText()
-            } ?: return@withContext Result.failure(Exception("Failed to open input stream"))
+                val sb = StringBuilder()
+                val buf = CharArray(8192)
+                val reader = InputStreamReader(stream, Charsets.UTF_8)
+                var total = 0
+                var read: Int
+                while (reader.read(buf).also { read = it } != -1) {
+                    total += read
+                    if (total > 10 * 1024 * 1024) {
+                        return@withContext Result.failure(
+                            Exception("File too large to display (>10 MB)")
+                        )
+                    }
+                    sb.append(buf, 0, read)
+                }
+                sb.toString()
+            } ?: return@withContext Result.failure(Exception("Failed to open file"))
 
             Result.success(content)
         } catch (e: Exception) {
