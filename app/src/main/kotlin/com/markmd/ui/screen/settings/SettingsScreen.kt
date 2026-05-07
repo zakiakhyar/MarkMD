@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -106,22 +105,6 @@ fun SettingsScreen(
                 }
             }
 
-            // Reader Section
-            SettingsSection(title = stringResource(R.string.settings_reader)) {
-                SettingsSwitch(
-                    title = stringResource(R.string.settings_keep_screen_on),
-                    checked = uiState.keepScreenOn,
-                    onCheckedChange = { viewModel.setKeepScreenOn(it) }
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-
-                SettingsSwitch(
-                    title = stringResource(R.string.settings_show_line_numbers),
-                    checked = uiState.showLineNumbers,
-                    onCheckedChange = { viewModel.setShowLineNumbers(it) }
-                )
-            }
         }
     }
 
@@ -243,30 +226,6 @@ private fun SettingsItem(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun SettingsSwitch(
-    title: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Switch(
-            checked = checked,
-            onCheckedChange = onCheckedChange
         )
     }
 }
