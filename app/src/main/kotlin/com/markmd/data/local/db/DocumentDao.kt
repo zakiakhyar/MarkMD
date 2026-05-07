@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface DocumentDao {
 
-    @Query("SELECT * FROM documents ORDER BY lastOpened DESC")
+    @Query("SELECT * FROM documents ORDER BY isPinned DESC, lastOpened DESC")
     fun getRecentDocuments(): Flow<List<DocumentEntity>>
 
     @Query("SELECT * FROM documents WHERE uri = :uri LIMIT 1")
@@ -30,4 +30,7 @@ interface DocumentDao {
 
     @Query("DELETE FROM documents")
     suspend fun clearAll()
+
+    @Query("UPDATE documents SET isPinned = CASE WHEN isPinned = 1 THEN 0 ELSE 1 END WHERE uri = :uri")
+    suspend fun togglePin(uri: String)
 }
