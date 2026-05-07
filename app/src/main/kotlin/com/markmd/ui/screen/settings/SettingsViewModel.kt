@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.markmd.data.model.AppTheme
 import com.markmd.data.model.FontFamily
+import com.markmd.data.model.ReadingTheme
 import com.markmd.data.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,11 +21,13 @@ class SettingsViewModel @Inject constructor(
 
     val uiState: StateFlow<SettingsUiState> = combine(
         settingsRepository.theme,
+        settingsRepository.readingTheme,
         settingsRepository.fontSize,
         settingsRepository.fontFamily,
-    ) { theme, fontSize, fontFamily ->
+    ) { theme, readingTheme, fontSize, fontFamily ->
         SettingsUiState(
             theme = theme,
+            readingTheme = readingTheme,
             fontSize = fontSize,
             fontFamily = fontFamily,
         )
@@ -37,6 +40,12 @@ class SettingsViewModel @Inject constructor(
     fun setTheme(theme: AppTheme) {
         viewModelScope.launch {
             settingsRepository.setTheme(theme)
+        }
+    }
+
+    fun setReadingTheme(theme: ReadingTheme) {
+        viewModelScope.launch {
+            settingsRepository.setReadingTheme(theme)
         }
     }
 
@@ -56,6 +65,7 @@ class SettingsViewModel @Inject constructor(
 
 data class SettingsUiState(
     val theme: AppTheme = AppTheme.SYSTEM,
+    val readingTheme: ReadingTheme = ReadingTheme.SYSTEM,
     val fontSize: Int = 16,
-    val fontFamily: FontFamily = FontFamily.SANS_SERIF,
+    val fontFamily: FontFamily = FontFamily.SYSTEM_DEFAULT,
 )
