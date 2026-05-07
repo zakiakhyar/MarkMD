@@ -8,6 +8,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.markmd.data.model.AppTheme
+import com.markmd.data.model.ReadingTheme
 
 // ---------------------------------------------------------------------------
 // Per-theme color palettes
@@ -94,6 +95,38 @@ object MarkdownPalette {
         tableBg          = Color(0xFF0A1628),
         tableText        = Color(0xFFCDD9E5),
     )
+
+    // DARK_GREEN — Termius-inspired terminal green
+    val darkGreen = GitHubTokens(
+        background       = Color(0xFF0C1A0C),
+        text             = Color(0xFF39FF14),
+        textMuted        = Color(0xFF2DB310),
+        codeBlockBg      = Color(0xFF0A150A),
+        inlineCodeBg     = Color(0x2239FF14),
+        codeText         = Color(0xFF7FFF00),
+        blockquoteBorder = Color(0xFF1A4D1A),
+        blockquoteText   = Color(0xFF2DB310),
+        link             = Color(0xFF00FF7F),
+        divider          = Color(0xFF1A4D1A),
+        tableBg          = Color(0xFF0A150A),
+        tableText        = Color(0xFF39FF14),
+    )
+
+    // SOLARIZED — Solarized Dark palette
+    val solarized = GitHubTokens(
+        background       = Color(0xFF002B36),
+        text             = Color(0xFF839496),
+        textMuted        = Color(0xFF586E75),
+        codeBlockBg      = Color(0xFF073642),
+        inlineCodeBg     = Color(0x22268BD2),
+        codeText         = Color(0xFF93A1A1),
+        blockquoteBorder = Color(0xFF2AA198),
+        blockquoteText   = Color(0xFF657B83),
+        link             = Color(0xFF268BD2),
+        divider          = Color(0xFF073642),
+        tableBg          = Color(0xFF073642),
+        tableText        = Color(0xFF839496),
+    )
 }
 
 // ---------------------------------------------------------------------------
@@ -130,6 +163,23 @@ fun rememberMarkdownTokens(theme: AppTheme): GitHubTokens {
     }
 }
 
+@Composable
+fun rememberMarkdownTokens(theme: ReadingTheme): GitHubTokens {
+    val isDark = isSystemInDarkTheme()
+    return remember(theme, isDark) {
+        when (theme) {
+            ReadingTheme.LIGHT      -> MarkdownPalette.light
+            ReadingTheme.DARK       -> MarkdownPalette.dark
+            ReadingTheme.SEPIA      -> MarkdownPalette.sepia
+            ReadingTheme.AMOLED     -> MarkdownPalette.amoled
+            ReadingTheme.DARK_BLUE  -> MarkdownPalette.darkBlue
+            ReadingTheme.DARK_GREEN -> MarkdownPalette.darkGreen
+            ReadingTheme.SOLARIZED  -> MarkdownPalette.solarized
+            ReadingTheme.SYSTEM     -> if (isDark) MarkdownPalette.dark else MarkdownPalette.light
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // GitHub-style heading TextStyle factory
 //
@@ -142,7 +192,12 @@ fun rememberMarkdownTokens(theme: AppTheme): GitHubTokens {
 //   h6 = 0.850em SemiBold  lineHeight 1.25  (color = muted)
 // ---------------------------------------------------------------------------
 
-fun githubHeadingStyle(level: Int, baseFontSize: Int, color: Color): TextStyle {
+fun githubHeadingStyle(
+    level: Int,
+    baseFontSize: Int,
+    color: Color,
+    fontFamily: androidx.compose.ui.text.font.FontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
+): TextStyle {
     val sizeSp = when (level) {
         1    -> baseFontSize * 2.00f
         2    -> baseFontSize * 1.50f
@@ -153,6 +208,7 @@ fun githubHeadingStyle(level: Int, baseFontSize: Int, color: Color): TextStyle {
     }
     return TextStyle(
         fontSize      = sizeSp.sp,
+        fontFamily    = fontFamily,
         fontWeight    = FontWeight.SemiBold,
         lineHeight    = (sizeSp * 1.25f).sp,
         letterSpacing = 0.sp,
