@@ -18,12 +18,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,7 +49,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.markmd.data.model.AppTheme
+import com.markmd.data.model.ReadingTheme
+import com.markmd.data.model.FontFamily as AppFontFamily
 import com.markmd.domain.parser.MarkdownSection
 import com.markmd.domain.parser.splitMarkdownByHeadings
 import com.mikepenz.markdown.annotator.annotatorSettings
@@ -103,13 +109,15 @@ fun rememberMarkdownSections(content: String): List<MarkdownSection> =
 fun MarkdownViewer(
     sections: List<MarkdownSection>,
     fontSize: Int,
-    theme: AppTheme = AppTheme.SYSTEM,
+    theme: ReadingTheme = ReadingTheme.SYSTEM,
+    fontFamily: AppFontFamily = AppFontFamily.SYSTEM_DEFAULT,
+    onFontSizeChange: ((Int) -> Unit)? = null,
     onAnchorClick: (String) -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     searchQuery: String = "",
     modifier: Modifier = Modifier,
 ) {
-    val gh = rememberMarkdownTokens(theme)
+    val gh = rememberMarkdownTokens(theme) // ReadingTheme overload
 
     // ------------------------------------------------------------------
     // Colors — exact GitHub token mapping
@@ -142,28 +150,31 @@ fun MarkdownViewer(
     // ------------------------------------------------------------------
     // Typography — GitHub em-based scale, monospace for code
     // ------------------------------------------------------------------
+    val composeFf = com.markmd.ui.theme.appFontFamilyOf(fontFamily)
     val bodyStyle = TextStyle(
-        fontSize     = fontSize.sp,
-        fontWeight   = FontWeight.Normal,
-        lineHeight   = (fontSize * 1.5f).sp,
+        fontSize      = fontSize.sp,
+        fontFamily    = composeFf,
+        fontWeight    = FontWeight.Normal,
+        lineHeight    = (fontSize * 1.5f).sp,
         letterSpacing = 0.sp,
-        color        = gh.text,
+        color         = gh.text,
     )
     val monoStyle = TextStyle(
-        fontSize     = (fontSize * 0.9f).sp,
-        fontFamily   = FontFamily.Monospace,
-        fontWeight   = FontWeight.Normal,
-        lineHeight   = (fontSize * 1.45f).sp,
+        fontSize      = (fontSize * 0.9f).sp,
+        fontFamily    = FontFamily.Monospace,
+        fontWeight    = FontWeight.Normal,
+        lineHeight    = (fontSize * 1.45f).sp,
         letterSpacing = 0.sp,
-        color        = gh.codeText,
+        color         = gh.codeText,
     )
     val quoteStyle = TextStyle(
-        fontSize     = fontSize.sp,
-        fontStyle    = FontStyle.Normal,
-        fontWeight   = FontWeight.Normal,
-        lineHeight   = (fontSize * 1.5f).sp,
+        fontSize      = fontSize.sp,
+        fontFamily    = composeFf,
+        fontStyle     = FontStyle.Normal,
+        fontWeight    = FontWeight.Normal,
+        lineHeight    = (fontSize * 1.5f).sp,
         letterSpacing = 0.sp,
-        color        = gh.blockquoteText,
+        color         = gh.blockquoteText,
     )
 
     val typography = markdownTypography(
@@ -175,12 +186,12 @@ fun MarkdownViewer(
         bullet      = bodyStyle,
         ordered     = bodyStyle,
         list        = bodyStyle,
-        h1 = githubHeadingStyle(1, fontSize, gh.text),
-        h2 = githubHeadingStyle(2, fontSize, gh.text),
-        h3 = githubHeadingStyle(3, fontSize, gh.text),
-        h4 = githubHeadingStyle(4, fontSize, gh.text),
-        h5 = githubHeadingStyle(5, fontSize, gh.text),
-        h6 = githubHeadingStyle(6, fontSize, gh.textMuted),
+        h1 = githubHeadingStyle(1, fontSize, gh.text, composeFf),
+        h2 = githubHeadingStyle(2, fontSize, gh.text, composeFf),
+        h3 = githubHeadingStyle(3, fontSize, gh.text, composeFf),
+        h4 = githubHeadingStyle(4, fontSize, gh.text, composeFf),
+        h5 = githubHeadingStyle(5, fontSize, gh.text, composeFf),
+        h6 = githubHeadingStyle(6, fontSize, gh.textMuted, composeFf),
     )
 
     // ------------------------------------------------------------------
@@ -235,11 +246,17 @@ fun MarkdownViewer(
         },
         text = { model ->
             val query = LocalSearchQuery.current
-            val raw = model.content.substring(model.node.startOffset, model.node.endOffset)
-            val highlighted = buildAnnotatedString {
-                append(raw)
+            val annotatorSettings = annotatorSettings()
+            val styledText = buildAnnotatedString {
+                pushStyle(model.typography.paragraph.toSpanStyle())
+                buildMarkdownAnnotatedString(
+                    content           = model.content,
+                    node              = model.node,
+                    annotatorSettings = annotatorSettings,
+                )
+                pop()
             }.withHighlight(query, highlightColor)
-            MarkdownBasicText(highlighted, style = model.typography.paragraph)
+            MarkdownBasicText(styledText, style = model.typography.paragraph)
         },
         // h1 — bottom border; top padding only if not first element (handled by section padding)
         heading1 = { model ->
@@ -471,6 +488,8 @@ fun MarkdownViewer(
         },
     )
 
+    var accumulatedScale by remember { mutableFloatStateOf(1f) }
+
     CompositionLocalProvider(
         LocalUriHandler provides anchorUriHandler,
         LocalSearchQuery provides searchQuery,
@@ -479,6 +498,20 @@ fun MarkdownViewer(
         modifier = modifier
             .fillMaxSize()
             .background(gh.background)
+            .then(
+                if (onFontSizeChange != null) Modifier.pointerInput(fontSize) {
+                    detectTransformGestures { _, _, zoom, _ ->
+                        accumulatedScale *= zoom
+                        if (accumulatedScale > 1.12f) {
+                            onFontSizeChange((fontSize + 1).coerceAtMost(32))
+                            accumulatedScale = 1f
+                        } else if (accumulatedScale < 0.88f) {
+                            onFontSizeChange((fontSize - 1).coerceAtLeast(10))
+                            accumulatedScale = 1f
+                        }
+                    }
+                } else Modifier
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp),
     ) {
         LazyColumn(state = lazyListState) {
