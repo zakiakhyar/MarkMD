@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
             val uiState by settingsViewModel.uiState.collectAsState()
 
-            MarkMDTheme(theme = uiState.theme) {
+            MarkMDTheme(theme = uiState.theme, fontFamily = uiState.fontFamily) {
                 AppNavGraph()
             }
         }
