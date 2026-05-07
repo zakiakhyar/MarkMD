@@ -10,5 +10,6 @@ data class Document(
     val title: String,
     val content: String,
     val lastModified: Long = System.currentTimeMillis(),
-    val scrollPosition: Int = 0
+    val scrollPosition: Int = 0,
+    val isPinned: Boolean = false,
 )
