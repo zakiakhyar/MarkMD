@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -42,7 +43,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -145,7 +146,7 @@ fun HomeScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.app_name),
@@ -157,7 +158,7 @@ fun HomeScreen(
                         Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings_title))
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     scrolledContainerColor = MaterialTheme.colorScheme.surface
                 )
             )
@@ -238,6 +239,9 @@ fun HomeScreen(
                     },
                     onDeleteDocument = { document ->
                         viewModel.onDeleteDocument(document.uri)
+                    },
+                    onPinDocument = { document ->
+                        viewModel.onPinDocument(document.uri)
                     },
                     onSaveToLocal = { document ->
                         viewModel.setPendingSaveUri(document.uri)
@@ -398,53 +402,101 @@ private fun DocumentList(
     documents: List<Document>,
     onDocumentClick: (Document) -> Unit,
     onDeleteDocument: (Document) -> Unit,
+    onPinDocument: (Document) -> Unit = {},
     onSaveToLocal: (Document) -> Unit = {},
 ) {
+    var pendingDeleteDocument by remember { mutableStateOf<Document?>(null) }
+
+    if (pendingDeleteDocument != null) {
+        AlertDialog(
+            onDismissRequest = { pendingDeleteDocument = null },
+            title = { Text("Remove from Recents") },
+            text = { Text("Remove \"${pendingDeleteDocument!!.title}\" from your recent documents?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteDocument(pendingDeleteDocument!!)
+                    pendingDeleteDocument = null
+                }) { Text("Remove", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingDeleteDocument = null }) { Text("Cancel") }
+            },
+        )
+    }
+
+    val pinned = documents.filter { it.isPinned }
+    val recent = documents.filter { !it.isPinned }
+
     LazyColumn(
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        if (pinned.isNotEmpty()) {
+            item {
+                Text(
+                    text = "Pinned",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(bottom = 4.dp, top = 4.dp)
+                )
+            }
+            items(pinned, key = { "pinned_${it.uri}" }) { document ->
+                val dismissState = rememberSwipeToDismissBoxState(
+                    confirmValueChange = { value ->
+                        when (value) {
+                            SwipeToDismissBoxValue.StartToEnd -> { onPinDocument(document); false }
+                            SwipeToDismissBoxValue.EndToStart -> { pendingDeleteDocument = document; false }
+                            else -> false
+                        }
+                    }
+                )
+                SwipeToDismissBox(
+                    state = dismissState,
+                    enableDismissFromStartToEnd = true,
+                    enableDismissFromEndToStart = true,
+                    backgroundContent = { SwipeBackground(dismissState) }
+                ) {
+                    DocumentCard(
+                        document = document,
+                        onClick = { onDocumentClick(document) },
+                        onSaveToLocal = if (document.uri.toString().startsWith("content://com.markmd")) {
+                            { onSaveToLocal(document) }
+                        } else null,
+                    )
+                }
+            }
+            item { Spacer(modifier = Modifier.height(4.dp)) }
+        }
+
         item {
             Text(
                 text = stringResource(R.string.home_title),
                 style = MaterialTheme.typography.titleSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 4.dp)
+                modifier = Modifier.padding(bottom = 4.dp, top = if (pinned.isNotEmpty()) 4.dp else 0.dp)
             )
         }
-        items(documents, key = { it.uri.toString() }) { document ->
+        items(recent, key = { "recent_${it.uri}" }) { document ->
             val dismissState = rememberSwipeToDismissBoxState(
                 confirmValueChange = { value ->
-                    if (value == SwipeToDismissBoxValue.EndToStart) {
-                        onDeleteDocument(document)
-                        true
-                    } else false
+                    when (value) {
+                        SwipeToDismissBoxValue.StartToEnd -> {
+                            onPinDocument(document)
+                            false
+                        }
+                        SwipeToDismissBoxValue.EndToStart -> {
+                            pendingDeleteDocument = document
+                            false
+                        }
+                        else -> false
+                    }
                 }
             )
             SwipeToDismissBox(
                 state = dismissState,
-                enableDismissFromStartToEnd = false,
-                backgroundContent = {
-                    val color by animateColorAsState(
-                        targetValue = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart)
-                            MaterialTheme.colorScheme.errorContainer
-                        else Color.Transparent,
-                        label = "swipe_bg"
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
-                            .padding(end = 20.dp),
-                        contentAlignment = Alignment.CenterEnd
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onErrorContainer
-                        )
-                    }
-                }
+                enableDismissFromStartToEnd = true,
+                enableDismissFromEndToStart = true,
+                backgroundContent = { SwipeBackground(dismissState) }
             ) {
                 DocumentCard(
                     document = document,
@@ -454,6 +506,33 @@ private fun DocumentList(
                     } else null,
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeBackground(dismissState: androidx.compose.material3.SwipeToDismissBoxState) {
+    val isPinSwipe   = dismissState.dismissDirection == SwipeToDismissBoxValue.StartToEnd
+    val isDeleteSwipe = dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart
+    val bgColor by animateColorAsState(
+        targetValue = when {
+            isPinSwipe    -> MaterialTheme.colorScheme.primaryContainer
+            isDeleteSwipe -> MaterialTheme.colorScheme.errorContainer
+            else           -> Color.Transparent
+        },
+        label = "swipe_bg"
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(bgColor, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+            .padding(horizontal = 20.dp),
+        contentAlignment = if (isPinSwipe) Alignment.CenterStart else Alignment.CenterEnd
+    ) {
+        when {
+            isPinSwipe    -> Icon(Icons.Default.PushPin, null, tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            isDeleteSwipe -> Icon(Icons.Default.Delete,  null, tint = MaterialTheme.colorScheme.onErrorContainer)
         }
     }
 }
@@ -501,6 +580,16 @@ private fun DocumentCard(
                     text = dateFormat.format(Date(document.lastModified)),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (document.isPinned) {
+                Icon(
+                    imageVector = Icons.Default.PushPin,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .size(16.dp)
+                        .padding(end = 4.dp),
                 )
             }
             if (onSaveToLocal != null) {
