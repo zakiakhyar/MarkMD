@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.markmd.data.model.AppTheme
 import com.markmd.data.model.Document
 import com.markmd.data.model.TocEntry
+import com.markmd.data.repository.DocumentRepository
 import com.markmd.data.repository.SettingsRepository
 import com.markmd.domain.usecase.ParseTocUseCase
 import com.markmd.domain.usecase.ReadFileUseCase
@@ -32,6 +33,7 @@ class ViewerViewModel @Inject constructor(
     private val parseToc: ParseTocUseCase,
     private val saveProgress: SaveProgressUseCase,
     private val settingsRepository: SettingsRepository,
+    private val documentRepository: DocumentRepository,
 ) : ViewModel() {
 
     val readerSettings: StateFlow<ReaderSettings> = combine(
@@ -65,11 +67,26 @@ class ViewerViewModel @Inject constructor(
         savedStateHandle.get<String>("uri")?.let { uriString ->
             loadDocument(Uri.parse(uriString))
         }
+        // Auto-reload when editor saves the current file
+        viewModelScope.launch {
+            documentRepository.fileSaved.collect { savedUri ->
+                if (savedUri == currentUri) {
+                    loadDocumentInternal(savedUri)
+                }
+            }
+        }
     }
 
     fun loadDocument(uri: Uri) {
         if (currentUri == uri && _uiState.value.document != null) return
+        loadDocumentInternal(uri)
+    }
 
+    fun reloadDocument() {
+        currentUri?.let { loadDocumentInternal(it) }
+    }
+
+    private fun loadDocumentInternal(uri: Uri) {
         currentUri = uri
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -83,6 +100,9 @@ class ViewerViewModel @Inject constructor(
                             toc = toc,
                             isLoading = false
                         )
+                    }
+                    if (_uiState.value.searchQuery.isNotEmpty()) {
+                        updateSearchMatches(document.content, _uiState.value.searchQuery)
                     }
                 }
                 .onFailure { error ->
@@ -137,6 +157,61 @@ class ViewerViewModel @Inject constructor(
             _events.emit(ViewerEvent.ExportPdf)
         }
     }
+
+    fun onSearchQueryChange(query: String) {
+        _uiState.update { it.copy(searchQuery = query) }
+        val content = _uiState.value.document?.content ?: return
+        updateSearchMatches(content, query)
+    }
+
+    fun onSearchNext() {
+        val state = _uiState.value
+        if (state.searchMatches.isEmpty()) return
+        val next = (state.currentMatchIndex + 1) % state.searchMatches.size
+        _uiState.update { it.copy(currentMatchIndex = next) }
+        viewModelScope.launch {
+            _events.emit(ViewerEvent.ScrollToMatch(state.searchMatches[next]))
+        }
+    }
+
+    fun onSearchPrev() {
+        val state = _uiState.value
+        if (state.searchMatches.isEmpty()) return
+        val prev = if (state.currentMatchIndex <= 0) state.searchMatches.size - 1
+                   else state.currentMatchIndex - 1
+        _uiState.update { it.copy(currentMatchIndex = prev) }
+        viewModelScope.launch {
+            _events.emit(ViewerEvent.ScrollToMatch(state.searchMatches[prev]))
+        }
+    }
+
+    fun onSearchClose() {
+        _uiState.update { it.copy(searchQuery = "", searchMatches = emptyList(), currentMatchIndex = -1) }
+    }
+
+    private fun updateSearchMatches(content: String, query: String) {
+        if (query.isBlank()) {
+            _uiState.update { it.copy(searchMatches = emptyList(), currentMatchIndex = -1) }
+            return
+        }
+        val matches = mutableListOf<Int>()
+        var idx = 0
+        val lower = content.lowercase()
+        val lowerQ = query.lowercase()
+        while (idx <= lower.length - lowerQ.length) {
+            val found = lower.indexOf(lowerQ, idx)
+            if (found < 0) break
+            matches += found
+            idx = found + 1
+        }
+        val newIndex = if (matches.isEmpty()) -1 else 0
+        _uiState.update { it.copy(searchMatches = matches, currentMatchIndex = newIndex) }
+        if (matches.isNotEmpty()) {
+            viewModelScope.launch {
+                _events.emit(ViewerEvent.ScrollToMatch(matches[0]))
+            }
+        }
+    }
 }
 
 data class ViewerUiState(
@@ -144,8 +219,14 @@ data class ViewerUiState(
     val toc: List<TocEntry> = emptyList(),
     val isLoading: Boolean = false,
     val isTocVisible: Boolean = false,
-    val error: String? = null
-)
+    val error: String? = null,
+    val searchQuery: String = "",
+    val searchMatches: List<Int> = emptyList(),
+    val currentMatchIndex: Int = -1,
+) {
+    val matchCount get() = searchMatches.size
+    val currentMatch get() = if (currentMatchIndex >= 0 && searchMatches.isNotEmpty()) currentMatchIndex + 1 else 0
+}
 
 data class ReaderSettings(
     val theme: AppTheme = AppTheme.SYSTEM,
@@ -158,4 +239,5 @@ sealed class ViewerEvent {
     data object NavigateToSettings : ViewerEvent()
     data class ShareDocument(val uri: Uri) : ViewerEvent()
     data object ExportPdf : ViewerEvent()
+    data class ScrollToMatch(val charOffset: Int) : ViewerEvent()
 }
