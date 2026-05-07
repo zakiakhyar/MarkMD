@@ -60,6 +60,9 @@
     <string name="action_no">No</string>
     <string name="action_confirm">Confirm</string>
 
+    <!-- Search -->
+    <string name="search_hint">Search in document…</string>
+
     <!-- Content Descriptions -->
     <string name="cd_back">Back</string>
     <string name="cd_menu">Menu</string>
