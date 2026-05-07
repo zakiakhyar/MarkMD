@@ -5,7 +5,6 @@ import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +14,6 @@ import com.markmd.ui.screen.editor.EditorScreen
 import com.markmd.ui.screen.home.HomeScreen
 import com.markmd.ui.screen.settings.SettingsScreen
 import com.markmd.ui.screen.viewer.ViewerScreen
-import com.markmd.ui.screen.viewer.ViewerViewModel
 
 @Composable
 fun AppNavGraph(
@@ -56,7 +54,7 @@ fun AppNavGraph(
                 },
                 onNavigateToSettings = {
                     navController.navigate(Routes.Settings)
-                }
+                },
             )
         }
 
