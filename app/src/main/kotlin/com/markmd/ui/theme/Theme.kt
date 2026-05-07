@@ -11,88 +11,114 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import com.markmd.data.model.AppTheme
+import com.markmd.data.model.FontFamily
 
 private val LightColors = lightColorScheme(
-    primary = md_theme_light_primary,
-    onPrimary = md_theme_light_onPrimary,
-    primaryContainer = md_theme_light_primaryContainer,
-    onPrimaryContainer = md_theme_light_onPrimaryContainer,
-    secondary = md_theme_light_secondary,
-    onSecondary = md_theme_light_onSecondary,
-    secondaryContainer = md_theme_light_secondaryContainer,
-    onSecondaryContainer = md_theme_light_onSecondaryContainer,
-    tertiary = md_theme_light_tertiary,
-    onTertiary = md_theme_light_onTertiary,
-    tertiaryContainer = md_theme_light_tertiaryContainer,
-    onTertiaryContainer = md_theme_light_onTertiaryContainer,
-    error = md_theme_light_error,
-    errorContainer = md_theme_light_errorContainer,
-    onError = md_theme_light_onError,
-    onErrorContainer = md_theme_light_onErrorContainer,
-    background = md_theme_light_background,
-    onBackground = md_theme_light_onBackground,
-    surface = md_theme_light_surface,
-    onSurface = md_theme_light_onSurface,
-    surfaceVariant = md_theme_light_surfaceVariant,
-    onSurfaceVariant = md_theme_light_onSurfaceVariant,
-    outline = md_theme_light_outline,
-    inverseOnSurface = md_theme_light_inverseOnSurface,
-    inverseSurface = md_theme_light_inverseSurface,
-    inversePrimary = md_theme_light_inversePrimary
+    primary               = light_primary,
+    onPrimary             = light_onPrimary,
+    primaryContainer      = light_primaryContainer,
+    onPrimaryContainer    = light_onPrimaryContainer,
+    secondary             = light_secondary,
+    onSecondary           = light_onSecondary,
+    secondaryContainer    = light_secondaryContainer,
+    onSecondaryContainer  = light_onSecondaryContainer,
+    tertiary              = light_tertiary,
+    onTertiary            = light_onTertiary,
+    tertiaryContainer     = light_tertiaryContainer,
+    onTertiaryContainer   = light_onTertiaryContainer,
+    error                 = light_error,
+    errorContainer        = light_errorContainer,
+    onError               = light_onError,
+    onErrorContainer      = light_onErrorContainer,
+    background            = light_background,
+    onBackground          = light_onBackground,
+    surface               = light_surface,
+    onSurface             = light_onSurface,
+    surfaceVariant        = light_surfaceVariant,
+    onSurfaceVariant      = light_onSurfaceVariant,
+    outline               = light_outline,
+    inverseOnSurface      = light_inverseOnSurface,
+    inverseSurface        = light_inverseSurface,
+    inversePrimary        = light_inversePrimary,
 )
 
 private val DarkColors = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    primaryContainer = md_theme_dark_primaryContainer,
-    onPrimaryContainer = md_theme_dark_onPrimaryContainer,
-    secondary = md_theme_dark_secondary,
-    onSecondary = md_theme_dark_onSecondary,
-    secondaryContainer = md_theme_dark_secondaryContainer,
-    onSecondaryContainer = md_theme_dark_onSecondaryContainer,
-    tertiary = md_theme_dark_tertiary,
-    onTertiary = md_theme_dark_onTertiary,
-    tertiaryContainer = md_theme_dark_tertiaryContainer,
-    onTertiaryContainer = md_theme_dark_onTertiaryContainer,
-    error = md_theme_dark_error,
-    errorContainer = md_theme_dark_errorContainer,
-    onError = md_theme_dark_onError,
-    onErrorContainer = md_theme_dark_onErrorContainer,
-    background = md_theme_dark_background,
-    onBackground = md_theme_dark_onBackground,
-    surface = md_theme_dark_surface,
-    onSurface = md_theme_dark_onSurface,
-    surfaceVariant = md_theme_dark_surfaceVariant,
-    onSurfaceVariant = md_theme_dark_onSurfaceVariant,
-    outline = md_theme_dark_outline,
-    inverseOnSurface = md_theme_dark_inverseOnSurface,
-    inverseSurface = md_theme_dark_inverseSurface,
-    inversePrimary = md_theme_dark_inversePrimary
+    primary               = dark_primary,
+    onPrimary             = dark_onPrimary,
+    primaryContainer      = dark_primaryContainer,
+    onPrimaryContainer    = dark_onPrimaryContainer,
+    secondary             = dark_secondary,
+    onSecondary           = dark_onSecondary,
+    secondaryContainer    = dark_secondaryContainer,
+    onSecondaryContainer  = dark_onSecondaryContainer,
+    tertiary              = dark_tertiary,
+    onTertiary            = dark_onTertiary,
+    tertiaryContainer     = dark_tertiaryContainer,
+    onTertiaryContainer   = dark_onTertiaryContainer,
+    error                 = dark_error,
+    errorContainer        = dark_errorContainer,
+    onError               = dark_onError,
+    onErrorContainer      = dark_onErrorContainer,
+    background            = dark_background,
+    onBackground          = dark_onBackground,
+    surface               = dark_surface,
+    onSurface             = dark_onSurface,
+    surfaceVariant        = dark_surfaceVariant,
+    onSurfaceVariant      = dark_onSurfaceVariant,
+    outline               = dark_outline,
+    inverseOnSurface      = dark_inverseOnSurface,
+    inverseSurface        = dark_inverseSurface,
+    inversePrimary        = dark_inversePrimary,
 )
 
 private val SepiaColors = lightColorScheme(
-    primary = sepia_primary,
-    onPrimary = md_theme_light_onPrimary,
-    background = sepia_background,
-    onBackground = sepia_onBackground,
-    surface = sepia_surface,
-    onSurface = sepia_onSurface
+    primary               = sepia_primary,
+    onPrimary             = sepia_onPrimary,
+    primaryContainer      = sepia_primaryContainer,
+    onPrimaryContainer    = sepia_onBackground,
+    secondary             = sepia_onSurfaceVariant,
+    onSecondary           = sepia_onPrimary,
+    secondaryContainer    = sepia_surfaceVariant,
+    onSecondaryContainer  = sepia_onBackground,
+    error                 = ErrorRed,
+    errorContainer        = light_errorContainer,
+    onError               = White,
+    onErrorContainer      = light_onErrorContainer,
+    background            = sepia_background,
+    onBackground          = sepia_onBackground,
+    surface               = sepia_surface,
+    onSurface             = sepia_onSurface,
+    surfaceVariant        = sepia_surfaceVariant,
+    onSurfaceVariant      = sepia_onSurfaceVariant,
+    outline               = sepia_outline,
 )
 
 private val AmoledColors = darkColorScheme(
-    primary = md_theme_dark_primary,
-    onPrimary = md_theme_dark_onPrimary,
-    background = amoled_background,
-    onBackground = amoled_onSurface,
-    surface = amoled_surface,
-    onSurface = amoled_onSurface,
-    surfaceVariant = amoled_surface,
-    onSurfaceVariant = amoled_onSurface
+    primary               = amoled_primary,
+    onPrimary             = amoled_onPrimary,
+    primaryContainer      = amoled_surfaceVariant,
+    onPrimaryContainer    = amoled_onSurface,
+    secondary             = amoled_onSurfaceVariant,
+    onSecondary           = amoled_onPrimary,
+    secondaryContainer    = amoled_surfaceVariant,
+    onSecondaryContainer  = amoled_onSurface,
+    error                 = ErrorRed,
+    errorContainer        = ErrorRedDim,
+    onError               = White,
+    onErrorContainer      = dark_onErrorContainer,
+    background            = amoled_background,
+    onBackground          = amoled_onSurface,
+    surface               = amoled_surface,
+    onSurface             = amoled_onSurface,
+    surfaceVariant        = amoled_surfaceVariant,
+    onSurfaceVariant      = amoled_onSurfaceVariant,
+    outline               = amoled_outline,
 )
 
 @Composable
 fun MarkMDTheme(
     theme: AppTheme = AppTheme.SYSTEM,
+    fontFamily: FontFamily = FontFamily.SANS_SERIF,
     content: @Composable () -> Unit
 ) {
     val isSystemDark = isSystemInDarkTheme()
@@ -103,12 +129,12 @@ fun MarkMDTheme(
     }
 
     val colorScheme = when (theme) {
-        AppTheme.LIGHT -> LightColors
-        AppTheme.DARK -> DarkColors
-        AppTheme.SEPIA -> SepiaColors
-        AppTheme.AMOLED -> AmoledColors
+        AppTheme.LIGHT     -> LightColors
+        AppTheme.DARK      -> DarkColors
+        AppTheme.SEPIA     -> SepiaColors
+        AppTheme.AMOLED    -> AmoledColors
         AppTheme.DARK_BLUE -> DarkColors
-        AppTheme.SYSTEM -> if (isSystemDark) DarkColors else LightColors
+        AppTheme.SYSTEM    -> if (isSystemDark) DarkColors else LightColors
     }
 
     val view = LocalView.current
@@ -124,7 +150,7 @@ fun MarkMDTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        typography  = buildTypography(fontFamily),
+        content     = content
     )
 }
