@@ -12,7 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.markmd"
+        applicationId = "com.codemd.reader"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
