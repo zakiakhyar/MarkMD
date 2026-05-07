@@ -4,8 +4,8 @@ import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.markmd.data.model.AppTheme
 import com.markmd.data.model.Document
+import com.markmd.data.model.ReadingTheme
 import com.markmd.data.model.TocEntry
 import com.markmd.data.repository.DocumentRepository
 import com.markmd.data.repository.SettingsRepository
@@ -37,21 +37,26 @@ class ViewerViewModel @Inject constructor(
 ) : ViewModel() {
 
     val readerSettings: StateFlow<ReaderSettings> = combine(
-        settingsRepository.theme,
+        settingsRepository.readingTheme,
         settingsRepository.fontSize,
-    ) { theme, fontSize -> ReaderSettings(theme = theme, fontSize = fontSize) }
+        settingsRepository.fontFamily,
+    ) { theme, fontSize, fontFamily -> ReaderSettings(readingTheme = theme, fontSize = fontSize, fontFamily = fontFamily) }
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = ReaderSettings(),
         )
 
-    fun setTheme(theme: AppTheme) {
-        viewModelScope.launch { settingsRepository.setTheme(theme) }
+    fun setReadingTheme(theme: ReadingTheme) {
+        viewModelScope.launch { settingsRepository.setReadingTheme(theme) }
     }
 
     fun setFontSize(size: Int) {
         viewModelScope.launch { settingsRepository.setFontSize(size.coerceIn(10, 32)) }
+    }
+
+    fun setFontFamily(family: com.markmd.data.model.FontFamily) {
+        viewModelScope.launch { settingsRepository.setFontFamily(family) }
     }
 
     private val _uiState = MutableStateFlow(ViewerUiState())
@@ -229,8 +234,9 @@ data class ViewerUiState(
 }
 
 data class ReaderSettings(
-    val theme: AppTheme = AppTheme.SYSTEM,
-    val fontSize: Int = 14,
+    val readingTheme: ReadingTheme = ReadingTheme.SYSTEM,
+    val fontSize: Int = 12,
+    val fontFamily: com.markmd.data.model.FontFamily = com.markmd.data.model.FontFamily.SYSTEM_DEFAULT,
 )
 
 sealed class ViewerEvent {
