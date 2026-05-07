@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CodeMD — Markdown Reader &amp; Editor for Android</title>
+  <meta name="description" content="CodeMD is a beautiful, fast, native Android Markdown reader and editor built with Jetpack Compose." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #7C5CBF;
+      --accent-light: #A07EE0;
+      --accent-dark: #5A3D9A;
+      --bg: #0F0F13;
+      --surface: #18181F;
+      --surface2: #22222D;
+      --border: #2E2E3A;
+      --text: #E8E8F0;
+      --muted: #9090A8;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 15, 19, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), #C9A8FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: calc(100vh - 60px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(124,92,191,0.25) 0%, transparent 70%);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(124,92,191,0.15);
+      border: 1px solid rgba(124,92,191,0.4);
+      border-radius: 100px;
+      padding: .35rem .9rem;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      margin-bottom: 1.5rem;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.03em;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent-light) 0%, #C9A8FF 50%, #E0B0FF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+    }
+    .btn-group { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .75rem 1.75rem;
+      border-radius: var(--radius);
+      font-size: .95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all .2s;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent-light); transform: translateY(-1px); }
+
+    /* ── FEATURES ── */
+    section { padding: 5rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      text-align: center;
+      font-size: .78rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: .75rem;
+    }
+    .section-title {
+      text-align: center;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      margin-bottom: .75rem;
+      letter-spacing: -0.02em;
+    }
+    .section-sub {
+      text-align: center;
+      color: var(--muted);
+      max-width: 520px;
+      margin: 0 auto 3rem;
+      font-size: 1rem;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      transition: border-color .2s, transform .2s;
+    }
+    .feature-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(124,92,191,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+    }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .4rem; }
+    .feature-card p { color: var(--muted); font-size: .88rem; line-height: 1.6; }
+
+    /* ── TECH STACK ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: .75rem;
+    }
+    .stack-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: .2rem;
+    }
+    .stack-category { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--accent-light); }
+    .stack-name { font-size: .9rem; font-weight: 600; }
+    .stack-version { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--muted); }
+
+    /* ── CTA ── */
+    .cta-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem 5rem;
+    }
+    .cta-box {
+      background: linear-gradient(135deg, rgba(124,92,191,0.2) 0%, rgba(90,61,154,0.1) 100%);
+      border: 1px solid rgba(124,92,191,0.4);
+      border-radius: 20px;
+      padding: 3.5rem 2rem;
+      text-align: center;
+    }
+    .cta-box h2 { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; margin-bottom: .75rem; }
+    .cta-box p { color: var(--muted); margin-bottom: 2rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    footer a:hover { color: var(--accent-light); }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: .75rem; flex-wrap: wrap; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="/">CodeMD</a>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#stack">Tech Stack</a></li>
+      <li><a href="https://github.com/zakiakhyar/MarkMD" target="_blank">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">📱 Android App</div>
+    <h1>The <span>Markdown Reader</span><br/>your Android deserves</h1>
+    <p>Beautiful, fast, and fully native. CodeMD renders Markdown with pixel-perfect precision using pure Jetpack Compose — no WebView required.</p>
+    <div class="btn-group">
+      <a class="btn btn-primary" href="https://github.com/zakiakhyar/CodeMD/releases" target="_blank">
+        ⬇ Download APK
+      </a>
+      <a class="btn btn-outline" href="https://github.com/zakiakhyar/CodeMD" target="_blank">
+        ★ View on GitHub
+      </a>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <p class="section-label">What's inside</p>
+    <h2 class="section-title">Everything you need to read &amp; write Markdown</h2>
+    <p class="section-sub">From syntax highlighting to full-text search, CodeMD covers every corner of the Markdown spec.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">✨</div>
+        <h3>GitHub-style Rendering</h3>
+        <p>Headings, paragraphs, lists, blockquotes, tables, code blocks, images, and links — rendered with Compose, not WebView. Full inline bold, italic, and strikethrough support.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>Syntax Highlighting</h3>
+        <p>Fenced code blocks with language-aware highlighting and a one-tap copy button for any code snippet.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📑</div>
+        <h3>Table of Contents</h3>
+        <p>Bottom sheet listing all headings. Tap any entry to scroll instantly to that section.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Full-text Search</h3>
+        <p>Search FAB with previous/next navigation. Matches highlighted inline inside headings, paragraphs, tables, and code.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🖥️</div>
+        <h3>Focus Mode</h3>
+        <p>Tap the fullscreen FAB to hide all UI chrome for distraction-free reading. Tap exit FAB to return.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📄</div>
+        <h3>Export to PDF</h3>
+        <p>Export any Markdown document as a PDF directly to your Downloads folder in one tap.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✏️</div>
+        <h3>Raw Markdown Editor</h3>
+        <p>Edit document content directly. Changes are saved back to the original file URI with auto-reload on save.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Import from URL</h3>
+        <p>Enter any direct URL to a raw <code>.md</code> file; content is downloaded and opened immediately — no app switching.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📋</div>
+        <h3>Paste from Clipboard</h3>
+        <p>Paste Markdown text directly from clipboard, give it a name, and open it instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📌</div>
+        <h3>Pin Documents</h3>
+        <p>Pin frequently used files to the top of the recent documents list for quick access.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🌙</div>
+        <h3>8 Reading Themes</h3>
+        <p>System, Light, Dark, Sepia, AMOLED, Dark Blue, Dark Green, and Solarized — independent from the app theme.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">�</div>
+        <h3>6 Bundled Fonts</h3>
+        <p>System Default, Lora, Merriweather, Literata, Atkinson Hyperlegible, Source Code Pro — all bundled, no network needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK -->
+  <section id="stack">
+    <p class="section-label">Under the hood</p>
+    <h2 class="section-title">Tech Stack</h2>
+    <p class="section-sub">Built with modern Android technologies for performance, reliability, and maintainability.</p>
+
+    <div class="stack-grid">
+      <div class="stack-item">
+        <span class="stack-category">Language</span>
+        <span class="stack-name">Kotlin</span>
+        <span class="stack-version">2.1.0</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">UI</span>
+        <span class="stack-name">Jetpack Compose + Material 3</span>
+        <span class="stack-version">BOM 2025.02.00</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">Architecture</span>
+        <span class="stack-name">MVVM + Clean Architecture</span>
+        <span class="stack-version">—</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">DI</span>
+        <span class="stack-name">Hilt</span>
+        <span class="stack-version">2.55</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">Navigation</span>
+        <span class="stack-name">Navigation Compose</span>
+        <span class="stack-version">2.8.7</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">Database</span>
+        <span class="stack-name">Room</span>
+        <span class="stack-version">2.6.1</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">Preferences</span>
+        <span class="stack-name">DataStore Preferences</span>
+        <span class="stack-version">1.1.2</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">Markdown</span>
+        <span class="stack-name">multiplatform-markdown-renderer</span>
+        <span class="stack-version">0.31.0</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">Images</span>
+        <span class="stack-name">Coil</span>
+        <span class="stack-version">3.1.0</span>
+      </div>
+      <div class="stack-item">
+        <span class="stack-category">Fonts</span>
+        <span class="stack-name">Bundled TTF</span>
+        <span class="stack-version">res/font/</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-box">
+      <h2>Ready to read Markdown beautifully?</h2>
+      <p>Download the latest APK or explore the source code on GitHub.</p>
+      <div class="btn-group">
+        <a class="btn btn-primary" href="https://github.com/zakiakhyar/CodeMD/releases" target="_blank">⬇ Download APK</a>
+        <a class="btn btn-outline" href="https://github.com/zakiakhyar/CodeMD" target="_blank">★ View Source</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="https://github.com/zakiakhyar/CodeMD" target="_blank">GitHub</a>
+    </div>
+    <p>&copy; 2025 CodeMD. Released under the MIT License.</p>
+  </footer>
+
+</body>
+</html>

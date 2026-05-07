@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — CodeMD</title>
+  <meta name="description" content="Terms of Service for CodeMD Android application." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #7C5CBF;
+      --accent-light: #A07EE0;
+      --bg: #0F0F13;
+      --surface: #18181F;
+      --border: #2E2E3A;
+      --text: #E8E8F0;
+      --muted: #9090A8;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 15, 19, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), #C9A8FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    .page-header {
+      background: linear-gradient(180deg, rgba(124,92,191,0.12) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .page-header .badge {
+      display: inline-block;
+      background: rgba(124,92,191,0.15);
+      border: 1px solid rgba(124,92,191,0.4);
+      border-radius: 100px;
+      padding: .3rem .85rem;
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .page-header h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: .5rem; }
+    .page-header .last-updated { color: var(--muted); font-size: .88rem; }
+
+    .content-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 3rem;
+    }
+    .toc h2 { font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent-light); margin-bottom: 1rem; }
+    .toc ol { padding-left: 1.25rem; }
+    .toc li { margin-bottom: .4rem; }
+    .toc a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .toc a:hover { color: var(--accent-light); }
+
+    .doc-section { margin-bottom: 3rem; }
+    .doc-section h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .doc-section h2 .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(124,92,191,0.2);
+      font-size: .8rem;
+      font-weight: 800;
+      color: var(--accent-light);
+      flex-shrink: 0;
+    }
+    .doc-section p { color: var(--muted); font-size: .95rem; margin-bottom: .85rem; }
+    .doc-section p:last-child { margin-bottom: 0; }
+    .doc-section ul, .doc-section ol { padding-left: 1.5rem; margin-bottom: .85rem; }
+    .doc-section li { color: var(--muted); font-size: .95rem; margin-bottom: .35rem; }
+    .doc-section a { color: var(--accent-light); text-decoration: none; }
+    .doc-section a:hover { text-decoration: underline; }
+
+    .highlight-box {
+      background: rgba(124,92,191,0.08);
+      border: 1px solid rgba(124,92,191,0.25);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+      font-size: .9rem;
+      color: var(--text);
+    }
+    .highlight-box strong { color: var(--accent-light); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    footer a:hover { color: var(--accent-light); }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: .75rem; flex-wrap: wrap; }
+
+    @media (max-width: 600px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="/">CodeMD</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/privacy-policy.html">Privacy Policy</a></li>
+      <li><a href="https://github.com/zakiakhyar/CodeMD" target="_blank">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-header">
+    <div class="badge">Legal</div>
+    <h1>Terms of Service</h1>
+    <p class="last-updated">Last updated: May 7, 2025</p>
+  </div>
+
+  <div class="content-wrapper">
+
+    <div class="toc">
+      <h2>Table of Contents</h2>
+      <ol>
+        <li><a href="#s1">Acceptance of Terms</a></li>
+        <li><a href="#s2">Description of the App</a></li>
+        <li><a href="#s3">License</a></li>
+        <li><a href="#s4">Permitted Use</a></li>
+        <li><a href="#s5">Prohibited Use</a></li>
+        <li><a href="#s6">User Content &amp; Files</a></li>
+        <li><a href="#s7">Internet Features</a></li>
+        <li><a href="#s8">Disclaimer of Warranties</a></li>
+        <li><a href="#s9">Limitation of Liability</a></li>
+        <li><a href="#s10">Open Source &amp; Third-Party Libraries</a></li>
+        <li><a href="#s11">Changes to These Terms</a></li>
+        <li><a href="#s12">Contact</a></li>
+      </ol>
+    </div>
+
+    <div class="doc-section" id="s1">
+      <h2><span class="num">1</span> Acceptance of Terms</h2>
+      <p>By downloading, installing, or using the CodeMD application ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.</p>
+    </div>
+
+    <div class="doc-section" id="s2">
+      <h2><span class="num">2</span> Description of the App</h2>
+      <p>CodeMD is a free, open-source Android application that allows users to read and edit Markdown files. The App is provided at no cost and is intended for personal and professional productivity use.</p>
+    </div>
+
+    <div class="doc-section" id="s3">
+      <h2><span class="num">3</span> License</h2>
+      <p>CodeMD is released under the <strong>MIT License</strong>. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the terms of the MIT License included with the source code.</p>
+      <p>The full license text is available in the repository at <a href="https://github.com/zakiakhyar/CodeMD" target="_blank">github.com/zakiakhyar/CodeMD</a>.</p>
+    </div>
+
+    <div class="doc-section" id="s4">
+      <h2><span class="num">4</span> Permitted Use</h2>
+      <p>You may use CodeMD to:</p>
+      <ul>
+        <li>Open, view, and edit Markdown files stored on your device or accessible via cloud storage</li>
+        <li>Import Markdown content from publicly accessible URLs</li>
+        <li>Paste and view Markdown content from your clipboard</li>
+        <li>Customize the appearance of the reader to your preference</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s5">
+      <h2><span class="num">5</span> Prohibited Use</h2>
+      <p>You agree not to use the App to:</p>
+      <ul>
+        <li>Access or distribute content that infringes on the intellectual property rights of others</li>
+        <li>Circumvent, disable, or interfere with security-related features of the App</li>
+        <li>Use the App in any manner that could harm, disable, overburden, or impair any server or network</li>
+        <li>Reverse-engineer the App for purposes other than those permitted under the MIT License</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s6">
+      <h2><span class="num">6</span> User Content &amp; Files</h2>
+      <p>CodeMD operates entirely on files and content that you provide. You retain full ownership of all files you open or create using the App. We do not claim any rights over your content.</p>
+      <p>You are solely responsible for the content of the files you open, edit, import, or share using the App.</p>
+    </div>
+
+    <div class="doc-section" id="s7">
+      <h2><span class="num">7</span> Internet Features</h2>
+      <p>The "Import from URL" feature allows you to fetch content from third-party URLs. By using this feature, you acknowledge that:</p>
+      <ul>
+        <li>We have no control over third-party content and are not responsible for it</li>
+        <li>You access third-party URLs at your own risk</li>
+        <li>You are responsible for complying with the terms of service of any third-party service from which you import content</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s8">
+      <h2><span class="num">8</span> Disclaimer of Warranties</h2>
+      <div class="highlight-box">
+        <strong>The App is provided "as is" and "as available" without warranties of any kind, either express or implied.</strong> We do not warrant that the App will be uninterrupted, error-free, or free of harmful components.
+      </div>
+      <p>To the fullest extent permitted by applicable law, we disclaim all warranties, including but not limited to, implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+    </div>
+
+    <div class="doc-section" id="s9">
+      <h2><span class="num">9</span> Limitation of Liability</h2>
+      <p>To the maximum extent permitted by law, the developers of MarkMD shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to:</p>
+      <ul>
+        <li>Loss of data or files</li>
+        <li>Corruption of documents</li>
+        <li>Any other damages arising from your use or inability to use the App</li>
+      </ul>
+      <p>You acknowledge that your use of the App is at your sole risk and discretion. We strongly recommend maintaining backups of any important files.</p>
+    </div>
+
+    <div class="doc-section" id="s10">
+      <h2><span class="num">10</span> Open Source &amp; Third-Party Libraries</h2>
+      <p>MarkMD makes use of the following open-source libraries, each governed by their own respective licenses:</p>
+      <ul>
+        <li>Jetpack Compose &amp; Material 3 (Apache 2.0)</li>
+        <li>Hilt / Dagger (Apache 2.0)</li>
+        <li>Room Persistence Library (Apache 2.0)</li>
+        <li>DataStore Preferences (Apache 2.0)</li>
+        <li>multiplatform-markdown-renderer (Apache 2.0)</li>
+        <li>Coil (Apache 2.0)</li>
+      </ul>
+      <p>Acknowledgments and license texts for these libraries are available in the project's source repository.</p>
+    </div>
+
+    <div class="doc-section" id="s11">
+      <h2><span class="num">11</span> Changes to These Terms</h2>
+      <p>We reserve the right to update these Terms at any time. When we do, the updated Terms will be published at <a href="https://codemd.zaki.my.id/terms-of-service.html">codemd.zaki.my.id/terms-of-service.html</a> with an updated "Last updated" date. Continued use of the App after changes are posted constitutes acceptance of the updated Terms.</p>
+    </div>
+
+    <div class="doc-section" id="s12">
+      <h2><span class="num">12</span> Contact</h2>
+      <p>If you have any questions about these Terms, please contact us via:</p>
+      <ul>
+        <li>GitHub Issues: <a href="https://github.com/zakiakhyar/CodeMD/issues" target="_blank">github.com/zakiakhyar/CodeMD/issues</a></li>
+        <li>Website: <a href="https://codemd.zaki.my.id">codemd.zaki.my.id</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="https://github.com/zakiakhyar/CodeMD" target="_blank">GitHub</a>
+    </div>
+    <p>&copy; 2025 CodeMD. Released under the MIT License.</p>
+  </footer>
+
+</body>
+</html>

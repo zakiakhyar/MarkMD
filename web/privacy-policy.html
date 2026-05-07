@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — CodeMD</title>
+  <meta name="description" content="Privacy Policy for CodeMD Android application." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent: #7C5CBF;
+      --accent-light: #A07EE0;
+      --bg: #0F0F13;
+      --surface: #18181F;
+      --border: #2E2E3A;
+      --text: #E8E8F0;
+      --muted: #9090A8;
+      --radius: 12px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.75;
+    }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(15, 15, 19, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-light), #C9A8FF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .9rem; font-weight: 500; transition: color .2s; }
+    .nav-links a:hover { color: var(--text); }
+
+    .page-header {
+      background: linear-gradient(180deg, rgba(124,92,191,0.12) 0%, transparent 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .page-header .badge {
+      display: inline-block;
+      background: rgba(124,92,191,0.15);
+      border: 1px solid rgba(124,92,191,0.4);
+      border-radius: 100px;
+      padding: .3rem .85rem;
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .page-header h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: .5rem; }
+    .page-header .last-updated { color: var(--muted); font-size: .88rem; }
+
+    .content-wrapper {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+    }
+
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.75rem;
+      margin-bottom: 3rem;
+    }
+    .toc h2 { font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--accent-light); margin-bottom: 1rem; }
+    .toc ol { padding-left: 1.25rem; }
+    .toc li { margin-bottom: .4rem; }
+    .toc a { color: var(--muted); text-decoration: none; font-size: .9rem; transition: color .2s; }
+    .toc a:hover { color: var(--accent-light); }
+
+    .doc-section { margin-bottom: 3rem; }
+    .doc-section h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: .6rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .doc-section h2 .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(124,92,191,0.2);
+      font-size: .8rem;
+      font-weight: 800;
+      color: var(--accent-light);
+      flex-shrink: 0;
+    }
+    .doc-section p { color: var(--muted); font-size: .95rem; margin-bottom: .85rem; }
+    .doc-section p:last-child { margin-bottom: 0; }
+    .doc-section ul, .doc-section ol { padding-left: 1.5rem; margin-bottom: .85rem; }
+    .doc-section li { color: var(--muted); font-size: .95rem; margin-bottom: .35rem; }
+    .doc-section a { color: var(--accent-light); text-decoration: none; }
+    .doc-section a:hover { text-decoration: underline; }
+
+    .highlight-box {
+      background: rgba(124,92,191,0.08);
+      border: 1px solid rgba(124,92,191,0.25);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin: 1.25rem 0;
+      font-size: .9rem;
+      color: var(--text);
+    }
+    .highlight-box strong { color: var(--accent-light); }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+    footer a { color: var(--muted); text-decoration: none; transition: color .2s; }
+    footer a:hover { color: var(--accent-light); }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: center; margin-bottom: .75rem; flex-wrap: wrap; }
+
+    @media (max-width: 600px) { .nav-links { display: none; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="/">CodeMD</a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/terms-of-service.html">Terms of Service</a></li>
+      <li><a href="https://github.com/zakiakhyar/CodeMD" target="_blank">GitHub</a></li>
+    </ul>
+  </nav>
+
+  <div class="page-header">
+    <div class="badge">Legal</div>
+    <h1>Privacy Policy</h1>
+    <p class="last-updated">Last updated: May 7, 2025</p>
+  </div>
+
+  <div class="content-wrapper">
+
+    <div class="toc">
+      <h2>Table of Contents</h2>
+      <ol>
+        <li><a href="#s1">Information We Collect</a></li>
+        <li><a href="#s2">How We Use Information</a></li>
+        <li><a href="#s3">Data Storage &amp; Local Files</a></li>
+        <li><a href="#s4">Internet &amp; Network Access</a></li>
+        <li><a href="#s5">Third-Party Services</a></li>
+        <li><a href="#s6">Data Retention</a></li>
+        <li><a href="#s7">Children's Privacy</a></li>
+        <li><a href="#s8">Changes to This Policy</a></li>
+        <li><a href="#s9">Contact Us</a></li>
+      </ol>
+    </div>
+
+    <div class="highlight-box">
+      <strong>Summary:</strong> CodeMD does not collect, transmit, or share any personal information. All your documents and settings stay on your device.
+    </div>
+
+    <div class="doc-section" id="s1">
+      <h2><span class="num">1</span> Information We Collect</h2>
+      <p>CodeMD is designed with privacy as a core principle. The application <strong>does not collect any personal data</strong> about you.</p>
+      <p>The following information is stored <em>locally on your device only</em> and is never transmitted to us or any third party:</p>
+      <ul>
+        <li>A list of recently opened Markdown file URIs (stored in a local Room database)</li>
+        <li>App preferences such as theme, font size, font family, and other display settings (stored using Jetpack DataStore)</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s2">
+      <h2><span class="num">2</span> How We Use Information</h2>
+      <p>Since we do not collect any personal information, there is nothing to use, process, or analyze. All locally stored data is used solely to provide core app functionality, specifically:</p>
+      <ul>
+        <li>Displaying your recent documents on the home screen</li>
+        <li>Restoring your preferred display settings between sessions</li>
+      </ul>
+    </div>
+
+    <div class="doc-section" id="s3">
+      <h2><span class="num">3</span> Data Storage &amp; Local Files</h2>
+      <p>CodeMD requests storage permission only to read Markdown files you explicitly choose to open. The app does not scan, index, or access any files beyond the ones you select.</p>
+      <p>When you use the "Save to Local Storage" feature, the file is written to a location you choose via the system file picker. CodeMD does not retain a copy in any app-controlled location.</p>
+    </div>
+
+    <div class="doc-section" id="s4">
+      <h2><span class="num">4</span> Internet &amp; Network Access</h2>
+      <p>CodeMD requests internet permission <em>only</em> for the following user-initiated actions:</p>
+      <ul>
+        <li><strong>Import from URL</strong> — When you explicitly enter a URL and tap "Open", the app fetches the content of that URL on your behalf.</li>
+        <li><strong>Loading remote images</strong> — Images referenced in a Markdown document are loaded from their source URLs using Coil.</li>
+      </ul>
+      <p>No network requests are made in the background, and no data about you is sent to any server.</p>
+    </div>
+
+    <div class="doc-section" id="s5">
+      <h2><span class="num">5</span> Third-Party Services</h2>
+      <p>CodeMD does not integrate any analytics, advertising, crash reporting, or tracking SDKs. The open-source libraries used by the app (such as Coil for image loading) operate entirely on your device and do not independently collect personal data.</p>
+    </div>
+
+    <div class="doc-section" id="s6">
+      <h2><span class="num">6</span> Data Retention</h2>
+      <p>All data is retained locally until you clear the app data or uninstall the app. You can also delete individual recent document entries by swiping left on them from the home screen.</p>
+    </div>
+
+    <div class="doc-section" id="s7">
+      <h2><span class="num">7</span> Children's Privacy</h2>
+      <p>CodeMD does not knowingly collect any information from children under the age of 13 (or applicable age in your jurisdiction). Since no personal data is collected by the app at all, it is safe for use by people of any age.</p>
+    </div>
+
+    <div class="doc-section" id="s8">
+      <h2><span class="num">8</span> Changes to This Policy</h2>
+      <p>If we ever update this Privacy Policy, the new version will be published at <a href="https://codemd.zaki.my.id/privacy-policy.html">codemd.zaki.my.id/privacy-policy.html</a> with an updated "Last updated" date at the top of the page.</p>
+    </div>
+
+    <div class="doc-section" id="s9">
+      <h2><span class="num">9</span> Contact Us</h2>
+      <p>If you have any questions or concerns about this Privacy Policy, please reach out via:</p>
+      <ul>
+        <li>GitHub Issues: <a href="https://github.com/zakiakhyar/CodeMD/issues" target="_blank">github.com/zakiakhyar/CodeMD/issues</a></li>
+        <li>Website: <a href="https://codemd.zaki.my.id">codemd.zaki.my.id</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/privacy-policy.html">Privacy Policy</a>
+      <a href="/terms-of-service.html">Terms of Service</a>
+      <a href="https://github.com/zakiakhyar/CodeMD" target="_blank">GitHub</a>
+    </div>
+    <p>&copy; 2025 CodeMD. Released under the MIT License.</p>
+  </footer>
+
+</body>
+</html>
