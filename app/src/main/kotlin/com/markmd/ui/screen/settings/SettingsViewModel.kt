@@ -22,15 +22,11 @@ class SettingsViewModel @Inject constructor(
         settingsRepository.theme,
         settingsRepository.fontSize,
         settingsRepository.fontFamily,
-        settingsRepository.keepScreenOn,
-        settingsRepository.showLineNumbers
-    ) { theme, fontSize, fontFamily, keepScreenOn, showLineNumbers ->
+    ) { theme, fontSize, fontFamily ->
         SettingsUiState(
             theme = theme,
             fontSize = fontSize,
             fontFamily = fontFamily,
-            keepScreenOn = keepScreenOn,
-            showLineNumbers = showLineNumbers
         )
     }.stateIn(
         scope = viewModelScope,
@@ -56,23 +52,10 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun setKeepScreenOn(enabled: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.setKeepScreenOn(enabled)
-        }
-    }
-
-    fun setShowLineNumbers(enabled: Boolean) {
-        viewModelScope.launch {
-            settingsRepository.setShowLineNumbers(enabled)
-        }
-    }
 }
 
 data class SettingsUiState(
     val theme: AppTheme = AppTheme.SYSTEM,
     val fontSize: Int = 16,
     val fontFamily: FontFamily = FontFamily.SANS_SERIF,
-    val keepScreenOn: Boolean = false,
-    val showLineNumbers: Boolean = false
 )
