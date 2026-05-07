@@ -3,14 +3,21 @@ package com.markmd.ui.screen.viewer
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -22,6 +29,8 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.FormatSize
+import androidx.compose.material.icons.filled.Fullscreen
+import androidx.compose.material.icons.filled.FullscreenExit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.MoreVert
@@ -33,6 +42,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -97,6 +107,7 @@ fun ViewerScreen(
     var showTocSheet by remember { mutableStateOf(false) }
     var showReaderSheet by remember { mutableStateOf(false) }
     var showSearch by remember { mutableStateOf(false) }
+    var focusMode by remember { mutableStateOf(false) }
     val searchFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(uri) {
@@ -151,6 +162,11 @@ fun ViewerScreen(
 
     Scaffold(
         topBar = {
+            AnimatedVisibility(
+                visible = !focusMode,
+                enter = fadeIn(tween(200)) + expandVertically(),
+                exit = fadeOut(tween(200)) + shrinkVertically(),
+            ) {
             TopAppBar(
                 title = {
                     Text(
@@ -166,16 +182,6 @@ fun ViewerScreen(
                 },
                 actions = {
                     IconButton(
-                        onClick = {
-                            showSearch = !showSearch
-                            if (!showSearch) viewModel.onSearchClose()
-                        },
-                        enabled = uiState.document != null
-                    ) {
-                        Icon(Icons.Default.Search, contentDescription = stringResource(R.string.cd_search))
-                    }
-
-                    IconButton(
                         onClick = { viewModel.onEditClick() },
                         enabled = uiState.document != null
                     ) {
@@ -189,46 +195,75 @@ fun ViewerScreen(
                         )
                     }
 
-                    IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.cd_more))
-                    }
-
-                    DropdownMenu(
-                        expanded = showMenu,
-                        onDismissRequest = { showMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.viewer_share)) },
-                            leadingIcon = { Icon(Icons.Default.Share, null) },
-                            onClick = {
-                                showMenu = false
-                                viewModel.onShareClick()
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.viewer_export_pdf)) },
-                            onClick = {
-                                showMenu = false
-                                viewModel.onExportPdfClick()
-                            }
-                        )
+                    Box {
+                        IconButton(onClick = { showMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.cd_more))
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.viewer_share)) },
+                                leadingIcon = { Icon(Icons.Default.Share, null) },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.onShareClick()
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.viewer_export_pdf)) },
+                                onClick = {
+                                    showMenu = false
+                                    viewModel.onExportPdfClick()
+                                }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     scrolledContainerColor = MaterialTheme.colorScheme.surface
                 )
             )
+            } // end AnimatedVisibility topBar
         },
         floatingActionButton = {
-            if (uiState.toc.isNotEmpty()) {
-                FloatingActionButton(
-                    onClick = { showTocSheet = true },
-                    elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
+            if (!focusMode) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.List,
-                        contentDescription = stringResource(R.string.viewer_toc)
-                    )
+                    // Search
+                    if (uiState.document != null) {
+                        SmallFloatingActionButton(
+                            onClick = {
+                                showSearch = !showSearch
+                                if (!showSearch) viewModel.onSearchClose()
+                            },
+                            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
+                        ) {
+                            Icon(Icons.Default.Search, contentDescription = stringResource(R.string.cd_search))
+                        }
+                        // Focus
+                        SmallFloatingActionButton(
+                            onClick = { focusMode = true },
+                            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
+                        ) {
+                            Icon(Icons.Default.Fullscreen, contentDescription = "Focus mode")
+                        }
+                    }
+                    // ToC
+                    if (uiState.toc.isNotEmpty()) {
+                        FloatingActionButton(
+                            onClick = { showTocSheet = true },
+                            elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
+                        ) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.List,
+                                contentDescription = stringResource(R.string.viewer_toc)
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -280,14 +315,26 @@ fun ViewerScreen(
                 }
                 uiState.document != null -> {
                     MarkdownViewer(
-                        sections      = sections,
-                        fontSize      = readerSettings.fontSize,
-                        theme         = readerSettings.theme,
-                        onAnchorClick = { anchor -> viewModel.onTocClick(anchor) },
-                        lazyListState = lazyListState,
-                        searchQuery   = uiState.searchQuery,
-                        modifier      = Modifier.fillMaxSize(),
+                        sections         = sections,
+                        fontSize         = readerSettings.fontSize,
+                        theme            = readerSettings.readingTheme,
+                        fontFamily       = readerSettings.fontFamily,
+                        onFontSizeChange = viewModel::setFontSize,
+                        onAnchorClick    = { anchor -> viewModel.onTocClick(anchor) },
+                        lazyListState    = lazyListState,
+                        searchQuery      = uiState.searchQuery,
+                        modifier         = Modifier.fillMaxSize(),
                     )
+                }
+            }
+            // Focus mode exit button — shown as a small FAB in bottom-end corner
+            if (focusMode) {
+                androidx.compose.material3.SmallFloatingActionButton(
+                    onClick = { focusMode = false },
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.85f),
+                ) {
+                    Icon(Icons.Default.FullscreenExit, contentDescription = "Exit focus mode", modifier = Modifier.size(20.dp))
                 }
             }
             } // end Box
@@ -318,10 +365,12 @@ fun ViewerScreen(
             sheetState = readerSheetState,
         ) {
             ReaderSettingsSheetContent(
-                fontSize = readerSettings.fontSize,
-                theme = readerSettings.theme,
-                onFontSizeChange = viewModel::setFontSize,
-                onThemeChange = viewModel::setTheme,
+                fontSize            = readerSettings.fontSize,
+                readingTheme        = readerSettings.readingTheme,
+                fontFamily          = readerSettings.fontFamily,
+                onFontSizeChange    = viewModel::setFontSize,
+                onReadingThemeChange = viewModel::setReadingTheme,
+                onFontFamilyChange  = viewModel::setFontFamily,
             )
         }
     }
