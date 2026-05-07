@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.markmd.data.model.AppTheme
 import com.markmd.data.model.FontFamily
+import com.markmd.data.model.ReadingTheme
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -26,6 +27,7 @@ class SettingsDataStore @Inject constructor(
 
     companion object {
         private val THEME_KEY = stringPreferencesKey("theme")
+        private val READING_THEME_KEY = stringPreferencesKey("reading_theme")
         private val FONT_SIZE_KEY = intPreferencesKey("font_size")
         private val FONT_FAMILY_KEY = stringPreferencesKey("font_family")
         private val KEEP_SCREEN_ON_KEY = booleanPreferencesKey("keep_screen_on")
@@ -38,12 +40,16 @@ class SettingsDataStore @Inject constructor(
         prefs[THEME_KEY]?.let { runCatching { AppTheme.valueOf(it) }.getOrNull() } ?: AppTheme.SYSTEM
     }
 
+    val readingTheme: Flow<ReadingTheme> = dataStore.data.map { prefs ->
+        prefs[READING_THEME_KEY]?.let { runCatching { ReadingTheme.valueOf(it) }.getOrNull() } ?: ReadingTheme.SYSTEM
+    }
+
     val fontSize: Flow<Int> = dataStore.data.map { prefs ->
         prefs[FONT_SIZE_KEY] ?: DEFAULT_FONT_SIZE
     }
 
     val fontFamily: Flow<FontFamily> = dataStore.data.map { prefs ->
-        prefs[FONT_FAMILY_KEY]?.let { FontFamily.valueOf(it) } ?: FontFamily.SANS_SERIF
+        prefs[FONT_FAMILY_KEY]?.let { runCatching { FontFamily.valueOf(it) }.getOrNull() } ?: FontFamily.SYSTEM_DEFAULT
     }
 
     val keepScreenOn: Flow<Boolean> = dataStore.data.map { prefs ->
@@ -56,6 +62,10 @@ class SettingsDataStore @Inject constructor(
 
     suspend fun setTheme(theme: AppTheme) {
         dataStore.edit { it[THEME_KEY] = theme.name }
+    }
+
+    suspend fun setReadingTheme(theme: ReadingTheme) {
+        dataStore.edit { it[READING_THEME_KEY] = theme.name }
     }
 
     suspend fun setFontSize(size: Int) {
