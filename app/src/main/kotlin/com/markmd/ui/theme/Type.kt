@@ -2,17 +2,12 @@ package com.markmd.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily as ComposeFF
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.markmd.data.model.FontFamily
 
-fun buildTypography(fontFamily: FontFamily = FontFamily.SANS_SERIF): Typography {
-    val ff = when (fontFamily) {
-        FontFamily.SANS_SERIF -> ComposeFF.SansSerif
-        FontFamily.SERIF      -> ComposeFF.Serif
-        FontFamily.MONOSPACE  -> ComposeFF.Monospace
-    }
+fun buildTypography(fontFamily: FontFamily = FontFamily.SYSTEM_DEFAULT): Typography {
+    val ff = appFontFamilyOf(fontFamily)
     return Typography(
         displayLarge = TextStyle(
             fontFamily = ff, fontWeight = FontWeight.Normal,
