@@ -173,6 +173,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun onPinDocument(uri: Uri) {
+        viewModelScope.launch {
+            repository.togglePin(uri)
+        }
+    }
+
     fun onSettingsClick() {
         viewModelScope.launch {
             _events.emit(HomeEvent.NavigateToSettings)
