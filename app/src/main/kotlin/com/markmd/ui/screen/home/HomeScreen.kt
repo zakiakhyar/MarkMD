@@ -3,6 +3,8 @@ package com.markmd.ui.screen.home
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
@@ -33,13 +36,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -58,7 +67,7 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
-    val uiState = viewModel.uiState
+    val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
@@ -117,11 +126,11 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            if (uiState.value.isLoading) {
+            if (uiState.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center)
                 )
-            } else if (uiState.value.recentDocuments.isEmpty()) {
+            } else if (uiState.recentDocuments.isEmpty()) {
                 EmptyState(
                     onOpenFile = {
                         filePickerLauncher.launch(arrayOf(
@@ -134,9 +143,12 @@ fun HomeScreen(
                 )
             } else {
                 DocumentList(
-                    documents = uiState.value.recentDocuments,
+                    documents = uiState.recentDocuments,
                     onDocumentClick = { document ->
-                        onNavigateToViewer(document.uri)
+                        viewModel.onRecentDocumentClick(document.uri)
+                    },
+                    onDeleteDocument = { document ->
+                        viewModel.onDeleteDocument(document.uri)
                     }
                 )
             }
@@ -180,20 +192,64 @@ private fun EmptyState(onOpenFile: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DocumentList(
     documents: List<Document>,
-    onDocumentClick: (Document) -> Unit
+    onDocumentClick: (Document) -> Unit,
+    onDeleteDocument: (Document) -> Unit,
 ) {
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        items(documents) { document ->
-            DocumentCard(
-                document = document,
-                onClick = { onDocumentClick(document) }
+        item {
+            Text(
+                text = stringResource(R.string.home_title),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = 4.dp)
             )
+        }
+        items(documents, key = { it.uri.toString() }) { document ->
+            val dismissState = rememberSwipeToDismissBoxState(
+                confirmValueChange = { value ->
+                    if (value == SwipeToDismissBoxValue.EndToStart) {
+                        onDeleteDocument(document)
+                        true
+                    } else false
+                }
+            )
+            SwipeToDismissBox(
+                state = dismissState,
+                enableDismissFromStartToEnd = false,
+                backgroundContent = {
+                    val color by animateColorAsState(
+                        targetValue = if (dismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart)
+                            MaterialTheme.colorScheme.errorContainer
+                        else Color.Transparent,
+                        label = "swipe_bg"
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color, shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp))
+                            .padding(end = 20.dp),
+                        contentAlignment = Alignment.CenterEnd
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            ) {
+                DocumentCard(
+                    document = document,
+                    onClick = { onDocumentClick(document) }
+                )
+            }
         }
     }
 }
@@ -203,31 +259,32 @@ private fun DocumentCard(
     document: Document,
     onClick: () -> Unit
 ) {
-    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy • HH:mm", Locale.getDefault()) }
+    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy • HH:mm", Locale.getDefault()) }
 
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Default.Description,
                 contentDescription = null,
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier.size(36.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = 16.dp)
+                    .padding(start = 14.dp)
             ) {
                 Text(
                     text = document.title,
