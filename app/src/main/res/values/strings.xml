@@ -1,6 +1,6 @@
 <resources>
-    <string name="app_name">MarkMD</string>
-    <string name="app_tagline">Beautiful Markdown Reader</string>
+    <string name="app_name">CodeMD</string>
+    <string name="app_tagline">Markdown Reader &amp; Editor</string>
 
     <!-- Home Screen -->
     <string name="home_title">Recent Documents</string>
@@ -41,9 +41,34 @@
     <string name="theme_dark_blue">Dark Blue</string>
 
     <!-- Font Families -->
-    <string name="font_sans">Sans-serif</string>
+    <string name="font_system_default">System Default</string>
     <string name="font_serif">Serif</string>
-    <string name="font_mono">Monospace</string>
+    <string name="font_georgia">Georgia</string>
+    <string name="font_literata">Literata</string>
+    <string name="font_open_dyslexic">OpenDyslexic</string>
+    <string name="font_source_code_pro">Source Code Pro</string>
+
+    <!-- Settings Reading -->
+    <string name="settings_reading">Reading</string>
+    <string name="settings_reading_theme">Reading Theme</string>
+    <string name="settings_app_theme">App Theme</string>
+
+    <!-- About -->
+    <string name="settings_about">About</string>
+    <string name="about_app_name">CodeMD: Markdown Reader &amp; Editor</string>
+    <string name="about_tagline">Beautiful reading, powerful editing.</string>
+    <string name="about_version">Version</string>
+    <string name="about_version_value">1.0.0</string>
+    <string name="about_website">Website</string>
+    <string name="about_website_url">codemd.zaki.my.id</string>
+    <string name="about_website_full_url">https://codemd.zaki.my.id</string>
+    <string name="about_privacy">Privacy Policy</string>
+    <string name="about_privacy_sub">Your data stays on your device</string>
+    <string name="about_privacy_url">https://codemd.zaki.my.id/privacy-policy.html</string>
+    <string name="about_terms">Terms of Service</string>
+    <string name="about_terms_sub">Usage terms and conditions</string>
+    <string name="about_terms_url">https://codemd.zaki.my.id/terms-of-service.html</string>
+    <string name="about_features_title">App Features</string>
 
     <!-- Messages -->
     <string name="msg_file_opened">File opened</string>
